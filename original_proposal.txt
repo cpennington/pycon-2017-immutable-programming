@@ -1,0 +1,59 @@
+Description
+    The world of Haskell and functional programming may seem like a distant place
+    to many working Python developers, but some of the techniques used there are
+    remarkably useful when developing in Python.
+
+    In this talk, I will cover some of the pitfalls of mutability that you may run
+    into while writing Python programs, and some tools and techniques that Python
+    has built in that will let you avoid them. You'll see namedtuples, enums and
+    properties, and also some patterns for structuring immutable programs that will
+    make them easier to build, extend, and test.
+
+Audience
+    This talk is for beginner or intermediate Python programmers who are interested
+    in learning some new techniques structuring their programs for composability,
+    testability, and correctness. Some basic familiarity with Python syntax is expected,
+    but no background in functional programming is needed. In the talk, the audience will
+    learn some features that Python has built-in that can help in writing in an immutable
+    style, and some reasons why doing so might make their programs easier to work on and modify.
+
+Outline
+    Intro (2m)
+    Who am I and what am I talking about? Give a basic introduction to myself, my experience
+    with both Python and Haskell, and a teaser about where the talk is going and what
+    concepts it will cover.
+
+    Setup (3m)
+    Introduce basic game implementation, full of mutable state. This will include things
+    like a single board instance, and some elided methods for interacting with the human
+    players. Demonstrate namedtuples and enums to make the pieces immutable. Both are
+    simple building blocks, and give nice value semantics for things in a mutable game
+    that clearly don't need to be mutable.
+
+    Testability (5m)
+    Compare testing a mutable board implementation with an immutable, functional implementation.
+    Mutable board tests write a board state, mutate it, and then inspect the results
+    Immutable board tests can compare the before and after as well, to give diffs to
+    compare the output (for instance).
+
+    Immutable Board State (5m)
+    Motivate this section with replays and undos. These are common in games, and tricky to
+    implement with a mutable engine. Demonstrate that the immutable board implementation
+    gives replay/undo for free. Track the history of board states, and allow restarts of
+    the game from any point in the middle.
+
+    Command Pattern (5m)
+    Motivate this section by putting in an AI. This will force a separation between the
+    player interaction and the core of engine, and exemplifies the separation of pure
+    functional/immutable code from the stateful/mutable interaction layer.
+    Like the pieces, commands will be namedtuples/enums Show how to model the player as a
+    function that takes a board state and returns a command, and then put in an "AI" with
+    the same pattern.
+
+    Itertools and Higher Order Functions (4m)
+    Re-use components built earlier, plus itertools, to produce iterators over all possible games.
+    Write a higher-order function to operate on the set of all games.
+
+    Wrap up (1m) - Comparison of starting state to end state, plus links and references.
+
+    Questions (5m)

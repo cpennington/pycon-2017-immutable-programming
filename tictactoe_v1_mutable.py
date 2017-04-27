@@ -3,15 +3,12 @@ import sys
 BOARD = [[" "]*3 for _ in range(3)]
 PLAYER = "X"
 
-def print_board():
-    for ri, row in enumerate(BOARD):
-        for ci, column in enumerate(row):
-            print(column, end='')
-            if ci != 2:
-                print (' | ', end='')
-        print('')
-        if ri != 2:
-            print('--+---+--')
+
+def format_board():
+    return "--+---+--\n".join(
+        " | ".join(row) + "\n"
+        for row in BOARD
+    )
 
 
 def do_move():
@@ -19,9 +16,9 @@ def do_move():
 
     move = input(f"Player {PLAYER} move (x y)? ")
     x, y = move.split()
-    BOARD[int(x)][int(y)] = PLAYER
-    PLAYER = "X" if PLAYER == 'Y' else 'Y'
-
+    if BOARD[int(x)][int(y)] == " ":
+        BOARD[int(x)][int(y)] = PLAYER
+        PLAYER = "X" if PLAYER == 'Y' else 'Y'
 
 def is_finished():
     for row in BOARD:
@@ -43,11 +40,11 @@ def is_finished():
 
 def main():
     while not is_finished():
-        print_board()
+        print(format_board())
         do_move()
 
     print("Game Over!")
-    print_board()
+    print(format_board())
 
 
 if __name__ == "__main__":
