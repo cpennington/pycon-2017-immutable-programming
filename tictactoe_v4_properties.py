@@ -4,23 +4,29 @@ from enum import Enum
 from unittest import TestCase
 
 
+# ENUM-START
 class Player(Enum):
     X = "X"
-    Y = "Y"
+    O = "O"
     NA = " "
+# ENUM-END
 
 
+# STORAGE-START
 class TicTacToe():
     def __init__(self):
         self.board = [[Player.NA]*3 for _ in range(3)]
+# STORAGE-END
 
+    # PROPERTY-START
     @property
     def player(self):
         plays = Counter(sum(self.board, []))
-        if plays[Player.Y] < plays[Player.X]:
-            return Player.Y
+        if plays[Player.O] < plays[Player.X]:
+            return Player.O
         else:
             return Player.X
+    # PROPERTY-END
 
     def __str__(self):
         return "--+---+--\n".join(
@@ -28,9 +34,11 @@ class TicTacToe():
             for row in self.board
         )
 
+    # ACTION-START
     def do_move(self, x, y):
         if self.board[x][y] == Player.NA:
             self.board[x][y] = self.player
+    # ACTION-END
 
     @property
     def is_finished(self):
@@ -58,16 +66,16 @@ class TestTicTacToe(TestCase):
     def test_basic_play(self):
         self.assertEqual(self.game.player, Player.X)
         self.game.do_move(0, 0)
-        self.assertEqual(self.game.player, Player.Y)
+        self.assertEqual(self.game.player, Player.O)
         self.game.do_move(0, 1)
         self.assertEqual(self.game.player, Player.X)
 
     def test_same_move(self):
         self.assertEqual(self.game.player, Player.X)
         self.game.do_move(0, 0)
-        self.assertEqual(self.game.player, Player.Y)
+        self.assertEqual(self.game.player, Player.O)
         self.game.do_move(0, 0)
-        self.assertEqual(self.game.player, Player.Y)
+        self.assertEqual(self.game.player, Player.O)
 
     def test_game_end(self):
         self.assertFalse(self.game.is_finished)

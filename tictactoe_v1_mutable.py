@@ -1,7 +1,9 @@
 import sys
 
+# STORAGE-START
 BOARD = [[" "]*3 for _ in range(3)]
 PLAYER = "X"
+# STORAGE-END
 
 
 def format_board():
@@ -10,7 +12,7 @@ def format_board():
         for row in BOARD
     )
 
-
+# ACTION-START
 def do_move():
     global PLAYER
 
@@ -18,7 +20,8 @@ def do_move():
     x, y = move.split()
     if BOARD[int(x)][int(y)] == " ":
         BOARD[int(x)][int(y)] = PLAYER
-        PLAYER = "X" if PLAYER == 'Y' else 'Y'
+        PLAYER = "X" if PLAYER == "O" else "O"
+# ACTION-END
 
 def is_finished():
     for row in BOARD:
@@ -37,7 +40,7 @@ def is_finished():
 
     return False
 
-
+# LOOP-START
 def main():
     while not is_finished():
         print(format_board())
@@ -45,6 +48,7 @@ def main():
 
     print("Game Over!")
     print(format_board())
+# LOOP-END
 
 
 if __name__ == "__main__":

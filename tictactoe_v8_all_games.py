@@ -1,13 +1,30 @@
 import sys
-from collections import Counter
+from collections import Counter, namedtuple
 from enum import Enum
 from unittest import TestCase
+from random import randrange
+from itertools import zip_longest, islice
 
 
 class Player(Enum):
     X = "X"
     O = "O"
     NA = " "
+
+
+class Undo(namedtuple('_Undo', ['count'])):
+    def apply(self, boards):
+        return boards[:-self.count]
+
+
+class Move(namedtuple('_Move', ['x', 'y'])):
+    def apply(self, boards):
+        return boards + [boards[-1].do_move(self.x, self.y)]
+
+
+class RevertTo(namedtuple('_RevertTo', ['idx'])):
+    def apply(self, boards):
+        return boards[:self.idx]
 
 
 def replace(tpl, idx, value):
@@ -62,6 +79,9 @@ class Board():
         if self.board[2][0] != Player.NA and self.board[2][0] == self.board[1][1] == self.board[0][2]:
             return True
 
+        if all(all(col != Player.NA for col in row) for row in self.board):
+            return True
+
         return False
 
 
@@ -84,27 +104,48 @@ class TestTicTacToe(TestCase):
                             self.assertNotEqual(initial.player, after_first.player)
                             self.assertNotEqual(initial.board, after_first.board)
 
+
+def depth_first(board=None):
+    if board is None:
+        board = Board()
+
+    yield board
+
+    for x in range(3):
+        for y in range(3):
+            next_board = board.do_move(x, y)
+            if board != next_board:
+                yield from depth_first(next_board)
+
+
+def _breadth_first(board=None):
+    if board is None:
+        board = Board()
+
+    yield [board]
+
+    next_boards = (
+        board.do_move(x, y)
+        for x in range(3)
+        for y in range(3)
+    )
+
+    next_boards = (
+        _breadth_first(next) for next in next_boards if next != board
+    )
+
+    plies = zip_longest(*next_boards)
+
+    for plies in plies:
+        yield sum(plies, [])
+
+
+def breadth_first(board=None):
+    for ply in _breadth_first(board):
+        yield from ply
+
 def main():
-    boards = [Board()]
-    while not boards[-1].is_finished():
-        print(boards[-1])
-        move = input(f"Player {boards[-1].player.value} move (x y, u to undo, gN to revert to move N)? ")
-        if move == 'u':
-            boards.pop()
-        elif move.startswith('g'):
-            boards = boards[:int(move.replace('g',''))+1]
-        else:
-            try:
-                x, y = move.split()
-                x = int(x)
-                y = int(y)
-
-                boards.append(boards[-1].do_move(x, y))
-            except:
-                print("Invalid move")
-
-    print("Game Over!")
-    for board in boards:
+    for board in islice(breadth_first(), 20):
         print(board)
 
 

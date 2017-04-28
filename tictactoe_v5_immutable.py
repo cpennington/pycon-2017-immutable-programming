@@ -6,30 +6,33 @@ from unittest import TestCase
 
 class Player(Enum):
     X = "X"
-    Y = "Y"
+    O = "O"
     NA = " "
 
 
 def replace(tpl, idx, value):
     return tpl[:idx] + (value, ) + tpl[idx+1:]
 
-
+# STORAGE-START
 class Board():
     def __init__(self, board=None):
         if board:
             self._board = board
         else:
-            self._board = tuple((Player.NA,)*3 for _ in range(3))
+            self._board = tuple(
+                (Player.NA,)*3 for _ in range(3)
+            )
 
     @property
     def board(self):
         return self._board
+# STORAGE-END
 
     @property
     def player(self):
         plays = Counter(sum(self.board, ()))
-        if plays[Player.Y] < plays[Player.X]:
-            return Player.Y
+        if plays[Player.O] < plays[Player.X]:
+            return Player.O
         else:
             return Player.X
 
@@ -39,13 +42,15 @@ class Board():
             for row in self.board
         )
 
+    # ACTION-START
     def do_move(self, x, y):
         if self.board[x][y] == Player.NA:
-            return Board(
-                replace(self.board, x, replace(self.board[x], y, self.player))
-            )
+            new_row = replace(self.board[x], y, self.player)
+            new_board = replace(self.board, x, new_row)
+            return Board(new_board)
         else:
             return self
+    # ACTION-END
 
     def is_finished(self):
         for row in self.board:
@@ -84,16 +89,18 @@ class TestTicTacToe(TestCase):
                             self.assertNotEqual(initial.player, after_first.player)
                             self.assertNotEqual(initial.board, after_first.board)
 
+# LOOP-START
 def main():
     board = Board()
     while not board.is_finished():
         print(board)
-        move = input(f"Player {board.player.value} move (x y)? ")
+        move = input(f"Player {board.player.value} (x y)? ")
         x, y = move.split()
         x = int(x)
         y = int(y)
 
         board = board.do_move(x, y)
+# LOOP-END
 
     print("Game Over!")
     print(board)

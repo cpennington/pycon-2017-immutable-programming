@@ -7,7 +7,7 @@ from random import randrange
 
 class Player(Enum):
     X = "X"
-    Y = "Y"
+    O = "O"
     NA = " "
 
 
@@ -44,8 +44,8 @@ class Board():
     @property
     def player(self):
         plays = Counter(sum(self.board, ()))
-        if plays[Player.Y] < plays[Player.X]:
-            return Player.Y
+        if plays[Player.O] < plays[Player.X]:
+            return Player.O
         else:
             return Player.X
 
@@ -141,7 +141,7 @@ def main():
     player_types = [move_human, move_random]
     players = {
         Player.X: player_types[x_choice],
-        Player.Y: player_types[y_choice],
+        Player.O: player_types[y_choice],
     }
 
     boards = [Board()]

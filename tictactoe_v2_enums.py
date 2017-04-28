@@ -1,13 +1,25 @@
 import sys
 from enum import Enum
 
+# ENUM-START
 class Player(Enum):
     X = "X"
-    Y = "Y"
+    O = "O"
     NA = " "
 
+    def next(self):
+        next_players = {
+            self.X: self.O,
+            self.O: self.X,
+        }
+        return next_players[self]
+# ENUM-END
+
+
+# STORAGE-START
 BOARD = [[Player.NA]*3 for _ in range(3)]
 PLAYER = Player.X
+# STORAGE-END
 
 
 def format_board():
@@ -16,7 +28,7 @@ def format_board():
         for row in BOARD
     )
 
-
+# ACTION-START
 def do_move():
     global PLAYER
 
@@ -24,7 +36,8 @@ def do_move():
     x, y = move.split()
     if BOARD[int(x)][int(y)] == Player.NA:
         BOARD[int(x)][int(y)] = PLAYER
-        PLAYER = Player.X if PLAYER == Player.Y else Player.Y
+        PLAYER = PLAYER.next()
+# ACTION-END
 
 
 def is_finished():

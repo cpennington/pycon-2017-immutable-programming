@@ -4,14 +4,22 @@ from enum import Enum
 
 class Player(Enum):
     X = "X"
-    Y = "Y"
+    O = "O"
     NA = " "
 
+    def next(self):
+        next_players = {
+            self.X: self.O,
+            self.O: self.X,
+        }
+        return next_players[self]
 
+# STORAGE-START
 class TicTacToe():
     def __init__(self):
         self.board = [[Player.NA]*3 for _ in range(3)]
         self.player = Player.X
+# STORAGE-END
 
     def __str__(self):
         return "--+---+--\n".join(
@@ -19,19 +27,23 @@ class TicTacToe():
             for row in self.board
         )
 
+    # ACTION-START
     def do_move(self):
         move = input(f"Player {self.player.value} move (x y)? ")
         x, y = move.split()
         if self.board[int(x)][int(y)] == Player.NA:
             self.board[int(x)][int(y)] = self.player
-            self.player = Player.X if self.player == Player.Y else Player.Y
+            self.player = self.player.next()
+    # ACTION-END
 
+    # BUG-START
     def do_move_buggy(self):
         move = input(f"Player {self.player.value} move (x y)? ")
         x, y = move.split()
         if self.board[int(x)][int(y)] == Player.NA:
             self.board[int(x)][int(y)] = self.player
-        self.player = Player.X if self.player == Player.Y else Player.Y
+        self.player = self.player.next()
+    # BUG-END
 
     def is_finished(self):
         for row in self.board:
@@ -51,6 +63,7 @@ class TicTacToe():
         return False
 
 
+# LOOP-START
 def main():
     game = TicTacToe()
     while not game.is_finished():
@@ -59,6 +72,7 @@ def main():
 
     print("Game Over!")
     print(game)
+# LOOP-END
 
 
 if __name__ == "__main__":
