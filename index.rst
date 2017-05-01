@@ -15,17 +15,19 @@
 
 .. revealjs:: Background
 
-    .. revealjs:: Python
+    .. revealjs::
 
-        Mutable by default (mostly)
+        Python
+            Mutable by default (mostly)
+
+        Haskell
+            Immutable by default
 
         .. rv_note::
 
-            In Python, nearly everything is mutable.
+            The difference I'm going to focus this talk on is mutability. In Python, it's possible
+            (and common) to modify the values of variables (especially on objects).
 
-    .. revealjs:: Haskell
-
-        Immutable by default
 
     .. revealjs::
 
@@ -201,11 +203,114 @@
             :start-after: ACTION-START
             :end-before: ACTION-END
 
-    .. revealjs:: Loop
+    .. revealjs:: Tests
+        :title-heading: h3
+        :data-transition: slide
+
+        .. literalinclude:: tictactoe_v4_properties.py
+            :language: python
+            :start-after: TEST-START
+            :end-before: TEST-END
+            :dedent: 4
+
+    .. revealjs:: Tests
         :title-heading: h3
         :data-transition: slide
 
         .. literalinclude:: tictactoe_v5_immutable.py
             :language: python
+            :start-after: TEST-START
+            :end-before: TEST-END
+            :dedent: 4
+
+    .. revealjs:: Tests
+        :title-heading: h3
+        :data-transition: slide
+
+        .. literalinclude:: tictactoe_v5_immutable.py
+            :language: python
+            :start-after: TEST-2-START
+            :end-before: TEST-2-END
+            :dedent: 16
+
+.. revealjs:: History
+
+    .. revealjs:: Replay
+        :title-heading: h3
+        :data-transition: slide
+
+        .. code-block:: python
+            :emphasize-lines: 2, 10, 13-14
+
+            def main():
+                boards = [Board()]
+                while not boards[-1].is_finished():
+                    print(boards[-1])
+                    move = input(f"... ")
+                    x, y = move.split()
+                    x = int(x)
+                    y = int(y)
+
+                    boards.append(boards[-1].do_move(x, y))
+
+                print("Game Over!")
+                for board in boards:
+                    print(board)
+
+    .. revealjs:: Undo
+        :title-heading: h3
+        :data-transition: slide
+
+        .. code-block:: python
+            :emphasize-lines: 7, 9
+
+            def main():
+                boards = [Board()]
+                while not boards[-1].is_finished():
+                    print(boards[-1])
+                    move = input(f"u to undo, gN to revert to move N? ")
+                    if move == 'u':
+                        boards.pop()
+                    elif move.startswith('g'):
+                        boards = boards[:int(move.replace('g',''))+1]
+                    else:
+                        ...
+
+.. revealjs:: Commands
+
+    .. revealjs::
+        :title-heading: h3
+        :data-transition: slide
+
+        .. literalinclude:: tictactoe_v7_command.py
+            :language: python
+            :start-after: COMMAND-START
+            :end-before: COMMAND-END
+
+    .. revealjs:: Loop
+        :title-heading: h3
+        :data-transition: slide
+
+        .. literalinclude:: tictactoe_v7_command.py
+            :language: python
             :start-after: LOOP-START
             :end-before: LOOP-END
+
+    .. revealjs:: Player
+        :title-heading: h3
+        :data-transition: slide
+
+        .. literalinclude:: tictactoe_v7_command.py
+            :language: python
+            :start-after: PLAYER-START
+            :end-before: PLAYER-END
+            :dedent: 8
+
+    .. revealjs:: Random
+        :title-heading: h3
+        :data-transition: slide
+
+        .. literalinclude:: tictactoe_v7_command.py
+            :language: python
+            :start-after: RANDOM-START
+            :end-before: RANDOM-END

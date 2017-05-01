@@ -63,6 +63,7 @@ class TestTicTacToe(TestCase):
     def setUp(self):
         self.game = TicTacToe()
 
+    # TEST-START
     def test_basic_play(self):
         self.assertEqual(self.game.player, Player.X)
         self.game.do_move(0, 0)
@@ -76,6 +77,7 @@ class TestTicTacToe(TestCase):
         self.assertEqual(self.game.player, Player.O)
         self.game.do_move(0, 0)
         self.assertEqual(self.game.player, Player.O)
+    # TEST-END
 
     def test_game_end(self):
         self.assertFalse(self.game.is_finished)

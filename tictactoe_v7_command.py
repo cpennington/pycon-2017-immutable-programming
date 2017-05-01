@@ -11,6 +11,7 @@ class Player(Enum):
     NA = " "
 
 
+# COMMAND-START
 class Undo(namedtuple('_Undo', ['count'])):
     def apply(self, boards):
         return boards[:-self.count]
@@ -24,6 +25,7 @@ class Move(namedtuple('_Move', ['x', 'y'])):
 class RevertTo(namedtuple('_RevertTo', ['idx'])):
     def apply(self, boards):
         return boards[:self.idx]
+# COMMAND-END
 
 
 def replace(tpl, idx, value):
@@ -108,6 +110,7 @@ def move_human(board):
     while True:
         print(board)
         move = input(f"Player {board.player.value} move (x y, uN to undo, gN to revert to move N)? ")
+        # PLAYER-START
         if move.startswith('u'):
             if move.strip() == 'u':
                 return Undo(1)
@@ -123,8 +126,9 @@ def move_human(board):
                 return Move(x, y)
             except:
                 print("Invalid move")
+        # PLAYER-END
 
-
+# RANDOM-START
 def move_random(board):
     while True:
         x = randrange(3)
@@ -132,12 +136,14 @@ def move_random(board):
 
         if board.board[x][y] == Player.NA:
             return Move(x, y)
+# RANDOM-END
 
 
 def main():
     x_choice = int(input("Player X: 0 for human, 1 for AI: "))
     y_choice = int(input("Player Y: 0 for human, 1 for AI: "))
 
+    # LOOP-START
     player_types = [move_human, move_random]
     players = {
         Player.X: player_types[x_choice],
@@ -148,6 +154,7 @@ def main():
     while not boards[-1].is_finished():
         move = players[boards[-1].player](boards[-1])
         boards = move.apply(boards)
+    # LOOP-END
 
     print("Game Over!")
     for board in boards:

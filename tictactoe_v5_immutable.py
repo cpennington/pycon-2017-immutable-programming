@@ -71,6 +71,7 @@ class Board():
 
 
 class TestTicTacToe(TestCase):
+    # TEST-START
     def test_basic_play(self):
         initial = Board()
         all_moves = [(x, y) for x in range(3) for y in range(3)]
@@ -79,6 +80,8 @@ class TestTicTacToe(TestCase):
                 after_first = initial.do_move(x0, y0)
                 self.assertNotEqual(initial.player, after_first.player)
                 self.assertNotEqual(initial.board, after_first.board)
+    # TEST-END
+                # TEST-2-START
                 for (x1, y1) in all_moves:
                     with self.subTest(x1=x1, y1=y1):
                         after_second = after_first.do_move(x1, y1)
@@ -88,6 +91,7 @@ class TestTicTacToe(TestCase):
                         else:
                             self.assertNotEqual(initial.player, after_first.player)
                             self.assertNotEqual(initial.board, after_first.board)
+                # TEST-2-END
 
 # LOOP-START
 def main():

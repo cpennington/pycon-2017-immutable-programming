@@ -4,6 +4,9 @@
 
 .highlight > pre {
     padding: 10px;
+    width: 100%;
+    margin: 0px;
+    background-color: #f8f8f8;
 }
 
 .highlight .hll { background-color: #ffffcc }
