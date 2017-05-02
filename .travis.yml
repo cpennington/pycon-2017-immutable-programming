@@ -1,0 +1,13 @@
+language: python
+python:
+  - 3.6
+
+script: make html
+
+deploy:
+  provider: pages
+  skip_cleanup: true
+  github_token: $GITHUB_TOKEN # Set in travis-ci.org dashboard
+  local_dir: _build
+  on:
+    branch: master
