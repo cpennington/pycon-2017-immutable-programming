@@ -115,9 +115,9 @@
 
         .. rv_note::
 
-            Another common tool for immutability in Python is the Enum, introduced in 3.4.
-            It allows you to construct named primitive values (and the majority of Python
-            primitives are immutable).
+            This also uses Enums to limit the set of valid values that our code has to
+            consider. Rather than risk typo errors by just using strings, we can restrict
+            our inputs to a known set of valid board positions.
 
     .. revealjs:: Tests
         :title-heading: h3
@@ -167,6 +167,8 @@
 
         .. code-block:: python
 
+            from collections import namedtuple
+
             class Board(namedtuple('_Board', ['board'])):
                 ...
 
@@ -185,7 +187,9 @@
         :data-transition: slide
 
         .. code-block:: python
-            :emphasize-lines: 4
+            :emphasize-lines: 6
+
+            from collections import namedtuple
 
             class Board(namedtuple('_Board', ['board'])):
                 ...
@@ -340,6 +344,23 @@
 
             It also presents a clean interface for substituting other types of
             players (like a random-AI), or a player over a network interface.
+
+    .. revealjs:: Tests
+        :title-heading: h3
+        :data-transition: slide
+
+        .. literalinclude:: tictactoe_v7_command.py
+            :language: python
+            :start-after: TEST-START
+            :end-before: TEST-END
+            :dedent: 4
+
+        .. rv_note::
+
+            Lastly, separating out the commands from the main loop means that you
+            can test them independently, and check that relationships between the
+            moves hold.
+
 
 .. revealjs::
 

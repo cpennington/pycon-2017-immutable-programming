@@ -19,7 +19,10 @@ class Undo(namedtuple('_Undo', ['count'])):
 
 class Move(namedtuple('_Move', ['x', 'y'])):
     def apply(self, boards):
-        return boards + (boards[-1].do_move(self.x, self.y), )
+        if boards[-1].board[x][y] == Player.NA:
+            return boards + (boards[-1].do_move(self.x, self.y), )
+        else:
+            return boards
 
 
 class RevertTo(namedtuple('_RevertTo', ['idx'])):
@@ -32,16 +35,7 @@ def replace(tpl, idx, value):
     return tpl[:idx] + (value, ) + tpl[idx+1:]
 
 
-class Board():
-    def __init__(self, board=None):
-        if board:
-            self._board = board
-        else:
-            self._board = tuple((Player.NA,)*3 for _ in range(3))
-
-    @property
-    def board(self):
-        return self._board
+class Board(namedtuple('_Board', ['board'])):
 
     @property
     def player(self):
@@ -85,6 +79,9 @@ class Board():
 
         return False
 
+Board.__new__.__defaults__ = (tuple(
+    (Player.NA,)*3 for _ in range(3)
+),)
 
 class TestTicTacToe(TestCase):
     def test_basic_play(self):
@@ -128,13 +125,51 @@ def move_human(board):
 
 # RANDOM-START
 def move_random(board):
-    while True:
-        x = randrange(3)
-        y = randrange(3)
+    x = randrange(3)
+    y = randrange(3)
 
-        if board.board[x][y] == Player.NA:
-            return Move(x, y)
+    return Move(x, y)
 # RANDOM-END
+
+
+class TestCommands(TestCase):
+
+    def setUp(self):
+        self.boards = (
+            Board(),
+            Board().do_move(1, 1),
+            Board().do_move(1, 1).do_move(0, 0),
+            Board().do_move(1, 1).do_move(0, 0).do_move(0, 2),
+        )
+
+    def test_undo(self):
+        self.assertEqual(
+            Undo(1).apply(self.boards),
+            self.boards[:-1]
+        )
+
+    # TEST-START
+    def test_revert(self):
+        self.assertEqual(
+            RevertTo(2).apply(self.boards),
+            self.boards[:2]
+        )
+
+    def test_inverse(self):
+        start = (Board(), )
+        for x in range(3):
+            for y in range(3):
+                self.assertEqual(
+                    Undo(1).apply(Move(x, y).apply(start)),
+                    start
+                )
+    # TEST-END
+
+    def test_move(self):
+        self.assertEqual(
+            Move(2, 2).apply(self.boards),
+            self.boards + (self.boards[-1].do_move(2, 2), )
+        )
 
 
 def main():

@@ -145,8 +145,15 @@ def breadth_first(board=None):
         yield from ply
 
 def main():
-    for board in islice(depth_first(), 30):
-        print(board)
+    bf_boards = 0
+    for board in breadth_first():
+        bf_boards += 1
+
+    df_boards = 0
+    for board in depth_first():
+        df_boards += 1
+
+    print(bf_boards, df_boards)
 
 
 if __name__ == "__main__":
