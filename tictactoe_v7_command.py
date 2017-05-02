@@ -19,7 +19,7 @@ class Undo(namedtuple('_Undo', ['count'])):
 
 class Move(namedtuple('_Move', ['x', 'y'])):
     def apply(self, boards):
-        return boards + [boards[-1].do_move(self.x, self.y)]
+        return boards + (boards[-1].do_move(self.x, self.y), )
 
 
 class RevertTo(namedtuple('_RevertTo', ['idx'])):
@@ -106,16 +106,14 @@ class TestTicTacToe(TestCase):
                             self.assertNotEqual(initial.board, after_first.board)
 
 
+# PLAYER-START
 def move_human(board):
     while True:
         print(board)
-        move = input(f"Player {board.player.value} move (x y, uN to undo, gN to revert to move N)? ")
-        # PLAYER-START
+        move = input(f"Player {board.player.value} move (x y, u to "
+                      "undo, gN to revert to move N)? ")
         if move.startswith('u'):
-            if move.strip() == 'u':
-                return Undo(1)
-            else:
-                return Undo(int(move.replace('u'), '') or 1)
+            return Undo(1)
         elif move.startswith('g'):
             return RevertTo(int(move.replace('g', '')) + 1)
         else:
@@ -126,7 +124,7 @@ def move_human(board):
                 return Move(x, y)
             except:
                 print("Invalid move")
-        # PLAYER-END
+# PLAYER-END
 
 # RANDOM-START
 def move_random(board):
@@ -150,7 +148,7 @@ def main():
         Player.O: player_types[y_choice],
     }
 
-    boards = [Board()]
+    boards = (Board(), )
     while not boards[-1].is_finished():
         move = players[boards[-1].player](boards[-1])
         boards = move.apply(boards)

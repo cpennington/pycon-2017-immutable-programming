@@ -1,5 +1,5 @@
 import sys
-from collections import Counter
+from collections import Counter, namedtuple
 from enum import Enum
 from unittest import TestCase
 
@@ -10,24 +10,12 @@ class Player(Enum):
     NA = " "
 
 
+# REPLACE-START
 def replace(tpl, idx, value):
     return tpl[:idx] + (value, ) + tpl[idx+1:]
+# REPLACE-END
 
-# STORAGE-START
-class Board():
-    def __init__(self, board=None):
-        if board:
-            self._board = board
-        else:
-            self._board = tuple(
-                (Player.NA,)*3 for _ in range(3)
-            )
-
-    @property
-    def board(self):
-        return self._board
-# STORAGE-END
-
+class Board(namedtuple('_Board', ['board'])):
     @property
     def player(self):
         plays = Counter(sum(self.board, ()))
@@ -69,28 +57,43 @@ class Board():
 
         return False
 
+    def __sub__(self, other):
+        diff = set()
+        for x in range(3):
+            for y in range(3):
+                if self.board[x][y] != other.board[x][y]:
+                    diff.add((x, y, self.board[x][y]))
+        return diff
+
+Board.__new__.__defaults__ = (tuple(
+    (Player.NA,)*3 for _ in range(3)
+),)
 
 class TestTicTacToe(TestCase):
     # TEST-START
     def test_basic_play(self):
         initial = Board()
         all_moves = [(x, y) for x in range(3) for y in range(3)]
+
         for (x0, y0) in all_moves:
             with self.subTest(x0=x0, y0=y0):
                 after_first = initial.do_move(x0, y0)
-                self.assertNotEqual(initial.player, after_first.player)
-                self.assertNotEqual(initial.board, after_first.board)
+                self.assertEqual(
+                    after_first - initial,
+                    {(x0, y0, Player.X)}
+                )
     # TEST-END
                 # TEST-2-START
                 for (x1, y1) in all_moves:
                     with self.subTest(x1=x1, y1=y1):
                         after_second = after_first.do_move(x1, y1)
                         if x1 == x0 and y1 == y0:
-                            self.assertEqual(after_first.player, after_second.player)
-                            self.assertEqual(after_first.board, after_second.board)
+                            self.assertEqual(after_second - after_first, set())
                         else:
-                            self.assertNotEqual(initial.player, after_first.player)
-                            self.assertNotEqual(initial.board, after_first.board)
+                            self.assertEqual(
+                                after_second - after_first,
+                                {(x1, y1, Player.O)}
+                            )
                 # TEST-2-END
 
 # LOOP-START

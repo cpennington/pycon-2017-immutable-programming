@@ -67,9 +67,12 @@ class TestTicTacToe(TestCase):
     def test_basic_play(self):
         self.assertEqual(self.game.player, Player.X)
         self.game.do_move(0, 0)
+        self.assertEqual(self.game.board[0][0], Player.X)
         self.assertEqual(self.game.player, Player.O)
         self.game.do_move(0, 1)
+        self.assertEqual(self.game.board[0][1], Player.O)
         self.assertEqual(self.game.player, Player.X)
+    # TEST-END
 
     def test_same_move(self):
         self.assertEqual(self.game.player, Player.X)
@@ -77,7 +80,6 @@ class TestTicTacToe(TestCase):
         self.assertEqual(self.game.player, Player.O)
         self.game.do_move(0, 0)
         self.assertEqual(self.game.player, Player.O)
-    # TEST-END
 
     def test_game_end(self):
         self.assertFalse(self.game.is_finished)
@@ -93,6 +95,7 @@ class TestTicTacToe(TestCase):
         self.assertTrue(self.game.is_finished)
 
 
+# LOOP-START
 def main():
     game = TicTacToe()
     while not game.is_finished:
@@ -105,6 +108,7 @@ def main():
 
     print("Game Over!")
     print(game)
+# LOOP-END
 
 
 if __name__ == "__main__":
