@@ -138,8 +138,8 @@ def depth_first_filter(filter_fn, board=None):
 
     next_boards = filter_fn(board, next_boards)
 
-    for board in next_boards:
-        yield from depth_first_filter(filter_fn, board)
+    for next_board in next_boards:
+        yield from depth_first_filter(filter_fn, next_board)
 # FILTER-END
 
 def _breadth_first(board=None):
