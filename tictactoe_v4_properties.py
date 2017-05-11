@@ -66,51 +66,51 @@ class BoardCorrected():
 
 class TestTicTacToe(TestCase):
     def setUp(self):
-        self.game = Board()
+        self.board = Board()
 
     # TEST-START
     def test_basic_play(self):
-        self.assertEqual(self.game.player, Player.X)
-        self.game.do_move(0, 0)
-        self.assertEqual(self.game.board[0][0], Player.X)
-        self.assertEqual(self.game.player, Player.O)
-        self.game.do_move(0, 1)
-        self.assertEqual(self.game.board[0][1], Player.O)
-        self.assertEqual(self.game.player, Player.X)
+        self.assertEqual(self.board.player, Player.X)
+        self.board.do_move(0, 0)
+        self.assertEqual(self.board.board[0][0], Player.X)
+        self.assertEqual(self.board.player, Player.O)
+        self.board.do_move(0, 1)
+        self.assertEqual(self.board.board[0][1], Player.O)
+        self.assertEqual(self.board.player, Player.X)
     # TEST-END
 
     def test_same_move(self):
-        self.assertEqual(self.game.player, Player.X)
-        self.game.do_move(0, 0)
-        self.assertEqual(self.game.player, Player.O)
-        self.game.do_move(0, 0)
-        self.assertEqual(self.game.player, Player.O)
+        self.assertEqual(self.board.player, Player.X)
+        self.board.do_move(0, 0)
+        self.assertEqual(self.board.player, Player.O)
+        self.board.do_move(0, 0)
+        self.assertEqual(self.board.player, Player.O)
 
     # FAILED-TEST-START
     def test_game_end(self):
-        self.assertFalse(self.game.is_finished)
-        self.game.do_move(0, 0)
-        self.assertFalse(self.game.is_finished)
+        self.assertFalse(self.board.is_finished)
+        self.board.do_move(0, 0)
+        self.assertFalse(self.board.is_finished)
     # FAILED-TEST-END
-        self.game.do_move(0, 1)
-        self.assertFalse(self.game.is_finished)
-        self.game.do_move(1, 0)
-        self.assertFalse(self.game.is_finished)
-        self.game.do_move(1, 1)
-        self.assertFalse(self.game.is_finished)
-        self.game.do_move(2, 0)
-        self.assertTrue(self.game.is_finished)
+        self.board.do_move(0, 1)
+        self.assertFalse(self.board.is_finished)
+        self.board.do_move(1, 0)
+        self.assertFalse(self.board.is_finished)
+        self.board.do_move(1, 1)
+        self.assertFalse(self.board.is_finished)
+        self.board.do_move(2, 0)
+        self.assertTrue(self.board.is_finished)
 
     # DEEP-TEST-START
     def test_moves_made(self):
         before = {
-            (x, y, self.game.board[x][y])
+            (x, y, self.board.board[x][y])
             for x in range(3)
             for y in range(3)
         }
-        self.game.do_move(0, 0)
+        self.board.do_move(0, 0)
         after = {
-            (x, y, self.game.board[x][y])
+            (x, y, self.board.board[x][y])
             for x in range(3)
             for y in range(3)
         }
@@ -119,20 +119,58 @@ class TestTicTacToe(TestCase):
     # DEEP-TEST-END
 
 
+ALL_MOVES = [
+    (x, y)
+    for x in range(3)
+    for y in range(3)
+]
+
+# DEPTH-FIRST-START
+def depth_first(board=None):
+    if board is None:
+        board = Board()
+
+    yield board
+
+    for x, y in ALL_MOVES:
+        if board.board[x][y] != Player.NA:
+            board.do_move(x, y)
+            try:
+                yield from depth_first(board)
+            finally:
+                board.board[x][y] = Player.NA
+# DEPTH-FIRST-END
+
+# DEPTH-COPY-START
+def depth_first(board=None):
+    if board is None:
+        board = Board()
+
+    yield board
+
+    for x, y in ALL_MOVES:
+        if board.board[x][y] != Player.NA:
+            old_board = [list(board.board[x]) for x in range(3)]
+            board.do_move(x, y)
+            try:
+                yield from depth_first(board)
+            finally:
+                board.board = old_board
+# DEPTH-COPY-END
 
 # LOOP-START
 def main():
-    game = Board()
-    while not game.is_finished:
-        print(game)
+    board = Board()
+    while not board.is_finished:
+        print(board)
 
-        move = input(f"Player {game.player.value} move (x y)? ")
+        move = input(f"Player {board.player.value} move (x y)? ")
         x, y = move.split()
 
-        game.do_move(int(x), int(y))
+        board.do_move(int(x), int(y))
 
     print("Game Over!")
-    print(game)
+    print(board)
 # LOOP-END
 
 

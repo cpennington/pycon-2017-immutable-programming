@@ -66,13 +66,13 @@ class Board():
 
 # LOOP-START
 def main():
-    game = Board()()
-    while not game.is_finished():
-        print(game)
-        game.do_move()
+    board = Board()
+    while not board.is_finished():
+        print(board)
+        board.do_move()
 
     print("Game Over!")
-    print(game)
+    print(board)
 # LOOP-END
 
 

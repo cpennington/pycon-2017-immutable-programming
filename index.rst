@@ -544,7 +544,40 @@
 
     .. revealjs:: Search
         :title-heading: h3
-        :data-transition: slide
+        :data-transition: slide-in fade-out
+
+        .. literalinclude:: tictactoe_v4_properties.py
+            :language: python
+            :start-after: DEPTH-FIRST-START
+            :end-before: DEPTH-FIRST-END
+
+        .. rv_note::
+
+            Say now that we want to analyze TicTacToe. We could look through all
+            possible games, and see how many X wins vs how many Y wins.
+
+            This code does the trick, but what happens if the caller of depth_first
+            makes a modification to the board? Or passes the board to something else
+            that makes a modification? If that happens, the rest of the iteration will
+            be over the modified board (and we'll miss some game states).
+
+    .. revealjs:: Search
+        :title-heading: h3
+        :data-transition: fade-in fade-out
+
+        .. literalinclude:: tictactoe_v4_properties.py
+            :language: python
+            :start-after: DEPTH-COPY-START
+            :end-before: DEPTH-COPY-END
+
+        .. rv_note::
+
+            This code fixes that problem, by duplicating the list contents
+            of the board at every step.
+
+    .. revealjs:: Search
+        :title-heading: h3
+        :data-transition: fade-in slide-out
 
         .. literalinclude:: tictactoe_v8_all_games.py
             :language: python
@@ -553,10 +586,7 @@
 
         .. rv_note::
 
-            Haskell also tends to work a lot with lazily generated lists (in Python,
-            generators). This lets us explore large spaces without using much memory.
-            In this case, we can do a depth-first iteration over all possible TicTacToe
-            game states.
+            With our immutable implementation, the code gets much simpler.
 
     .. revealjs:: Filter
         :title-heading: h3
