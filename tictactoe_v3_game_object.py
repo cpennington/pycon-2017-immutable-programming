@@ -15,7 +15,7 @@ class Player(Enum):
         return next_players[self]
 
 # STORAGE-START
-class TicTacToe():
+class Board():
 
     def __init__(self):
         self.board = [[Player.NA]*3 for _ in range(3)]
@@ -66,7 +66,7 @@ class TicTacToe():
 
 # LOOP-START
 def main():
-    game = TicTacToe()
+    game = Board()()
     while not game.is_finished():
         print(game)
         game.do_move()

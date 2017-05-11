@@ -279,25 +279,34 @@
             :start-after: TEST-START
             :end-before: TEST-END
             :dedent: 4
-            :emphasize-lines: 8-11
 
         .. rv_note::
 
-            One downside to the unittests that we wrote up above is that once we actually
-            call do_move, we lose access to the unmodified board to do comparisons. This makes
-            it hard to validate that the move function is only changing the squares we expect it
-            to.
+            This version of the test is significantly clearer. Making a move
+            on the board doesn't modify the board, it just returns a new board
+            with the modified state. Now we can easily compare the before
+            and after results.
 
-            Here, we've got a unit test that assumes that do_move won't change the original
-            Board that it was called on, and will instead return a modified Board. That way,
-            we can diff the new and old board and verify that only the expect change was made.
+    .. revealjs:: Storage
+        :title-heading: h3
+        :data-transition: slide-in fade-out
 
-            We can also easily chain multiple tests using subTest to verify that all first-moves
-            are correct.
+        .. code-block:: python
+
+            class Board(namedtuple('_Board', ['board'])):
+                ...
+
+            Board.__new__.__defaults__ = (((Player.NA, )*3, )*3, )
+
+        .. rv_note::
+
+            We made the test above possible by making the Board immutable.
+            But before we dig into this code any more, a quick aside on namedtuples.
+
 
     .. revealjs:: namedtuple
         :title-heading: h3
-        :data-transition: slide
+        :data-transition: fade
 
         .. code-block:: python
 
@@ -309,9 +318,20 @@
             x.weight  # 20
             list(x)   # [10, 20]
 
+        .. rv_note::
+
+            namedtuple is a function that comes in the python standard library,
+            in the collections package. Calling it generates a new subclass of
+            tuple that has attribute accessors for each element in the tuple.
+            Because it derives from tuple, the attributes are immutable. This
+            makes it an easy drop-in way to add immutablity to an existing codebase.
+
+            (It also gives you equality checking, __str__, and a number of other convenience
+            methods for free).
+
     .. revealjs:: Storage
         :title-heading: h3
-        :data-transition: slide
+        :data-transition: fade-in slide-out
 
         .. code-block:: python
 
@@ -337,12 +357,27 @@
 
     .. revealjs:: Action
         :title-heading: h3
-        :data-transition: slide
+        :data-transition: slide-in fade-out
+
+        .. literalinclude:: tictactoe_v4_properties.py
+            :language: python
+            :start-after: ACTION-START
+            :end-before: ACTION-END
+            :dedent: 4
+
+        .. rv_note::
+
+            Just as a reminder, here's what the code looked like in the mutable case.
+
+    .. revealjs:: Action
+        :title-heading: h3
+        :data-transition: fade-in slide-out
 
         .. literalinclude:: tictactoe_v5_immutable.py
             :language: python
             :start-after: ACTION-START
             :end-before: ACTION-END
+            :dedent: 4
 
         .. literalinclude:: tictactoe_v5_immutable.py
             :language: python
@@ -361,21 +396,34 @@
 
     .. revealjs:: Replay
         :title-heading: h3
-        :data-transition: slide
+        :data-transition: slide-in fade-out
+
+        .. literalinclude:: tictactoe_v4_properties.py
+            :language: python
+            :start-after: LOOP-START
+            :end-before: LOOP-END
+
+        .. rv_note::
+
+            To refresh your memory, here's what the main game loop looked like
+            with a mutable game.
+
+    .. revealjs:: Replay
+        :title-heading: h3
+        :data-transition: fade-in slide-out
 
         .. code-block:: python
-            :emphasize-lines: 2, 10, 13-14
+            :emphasize-lines: 2, 8, 11-13
 
             def main():
                 boards = [Board()]
                 while not boards[-1].is_finished():
                     print(boards[-1])
-                    move = input(f"... ")
-                    x, y = move.split()
-                    x = int(x)
-                    y = int(y)
 
-                    boards.append(boards[-1].do_move(x, y))
+                    move = input(f"Player {game.player.value} move (x y)")
+                    x, y = move.split()
+
+                    boards.append(boards[-1].do_move(int(x), int(y)))
 
                 print("Game Over!")
                 for board in boards:
@@ -399,7 +447,9 @@
                 boards = [Board()]
                 while not boards[-1].is_finished():
                     print(boards[-1])
-                    move = input(f"u to undo, gN to revert to move N? ")
+
+                    ...
+
                     if move == 'u':
                         boards.pop()
                     elif move.startswith('g'):

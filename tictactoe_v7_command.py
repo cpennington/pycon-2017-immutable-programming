@@ -19,7 +19,7 @@ class Undo(namedtuple('_Undo', ['count'])):
 
 class Move(namedtuple('_Move', ['x', 'y'])):
     def apply(self, boards):
-        if boards[-1].board[x][y] == Player.NA:
+        if boards[-1].board[self.x][self.y] == Player.NA:
             return boards + (boards[-1].do_move(self.x, self.y), )
         else:
             return boards

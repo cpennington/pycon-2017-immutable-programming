@@ -13,7 +13,7 @@ class Player(Enum):
 
 
 # STORAGE-START
-class TicTacToe():
+class Board():
     def __init__(self):
         self.board = [[Player.NA]*3]*3
 # STORAGE-END
@@ -58,7 +58,7 @@ class TicTacToe():
 
         return False
 
-class TicTacToeCorrected():
+class BoardCorrected():
     # FIXED-STORAGE-START
     def __init__(self):
         self.board = [[Player.NA]*3 for _ in range(3)]
@@ -66,7 +66,7 @@ class TicTacToeCorrected():
 
 class TestTicTacToe(TestCase):
     def setUp(self):
-        self.game = TicTacToe()
+        self.game = Board()
 
     # TEST-START
     def test_basic_play(self):
@@ -122,7 +122,7 @@ class TestTicTacToe(TestCase):
 
 # LOOP-START
 def main():
-    game = TicTacToe()
+    game = Board()
     while not game.is_finished:
         print(game)
 

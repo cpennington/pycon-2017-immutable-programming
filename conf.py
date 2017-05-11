@@ -98,6 +98,8 @@ html_theme_options = {
     "theme": "white",
     "margin": 0.02,
     "max_scale": 3.0,
+    "center": False,
+    "controls": False,
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,

@@ -72,6 +72,12 @@ Board.__new__.__defaults__ = (tuple(
 
 class TestTicTacToe(TestCase):
     # TEST-START
+    def test_moves_made(self):
+        before = Board()
+        after = before.do_move(0, 0)
+        self.assertEqual(after - before, {(0, 0, Player.X)})
+        self.assertEqual(before - after, {(0, 0, Player.NA)})
+    # TEST-END
     def test_basic_play(self):
         initial = Board()
         all_moves = [(x, y) for x in range(3) for y in range(3)]
@@ -83,7 +89,6 @@ class TestTicTacToe(TestCase):
                     after_first - initial,
                     {(x0, y0, Player.X)}
                 )
-    # TEST-END
                 # TEST-2-START
                 for (x1, y1) in all_moves:
                     with self.subTest(x1=x1, y1=y1):

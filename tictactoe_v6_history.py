@@ -1,5 +1,5 @@
 import sys
-from collections import Counter
+from collections import Counter, namedtuple
 from enum import Enum
 from unittest import TestCase
 
@@ -15,11 +15,6 @@ def replace(tpl, idx, value):
 
 
 class Board(namedtuple('_Board', ['board'])):
-
-    @property
-    def board(self):
-        return self._board
-
     @property
     def player(self):
         plays = Counter(sum(self.board, ()))
