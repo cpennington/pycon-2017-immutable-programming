@@ -635,3 +635,9 @@
     * Generators and filter functions to manage large search spaces
 
 .. revealjs:: Questions?
+
+.. revealjs:: references
+
+    Talk Source Code: `bit.ly/immutable-python`_
+
+.. _bit.ly/immutable-python: http://bit.ly/immutable-python
