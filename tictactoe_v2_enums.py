@@ -7,7 +7,7 @@ class Player(Enum):
     O = "O"
     NA = " "
 
-    def next(self):
+    def next_player(self):
         next_players = {
             self.X: self.O,
             self.O: self.X,
@@ -36,7 +36,7 @@ def do_move():
     x, y = move.split()
     if BOARD[int(x)][int(y)] == Player.NA:
         BOARD[int(x)][int(y)] = PLAYER
-        PLAYER = PLAYER.next()
+        PLAYER = PLAYER.next_player()
 # ACTION-END
 
 

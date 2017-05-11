@@ -42,6 +42,7 @@ class Board(namedtuple('_Board', ['board'])):
         else:
             return self
 
+    @property
     def is_finished(self):
         for row in self.board:
             if row[0] != Player.NA and row[0] == row[1] == row[2]:
@@ -84,7 +85,7 @@ class TestTicTacToe(TestCase):
 
 def main():
     boards = [Board()]
-    while not boards[-1].is_finished():
+    while not boards[-1].is_finished:
         print(boards[-1])
         move = input(f"Player {boards[-1].player.value} move (x y, u to undo, gN to revert to move N)? ")
         if move == 'u':

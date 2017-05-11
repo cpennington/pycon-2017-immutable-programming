@@ -59,6 +59,7 @@ class Board(namedtuple('_Board', ['board'])):
         else:
             return self
 
+    @property
     def is_finished(self):
         for row in self.board:
             if row[0] != Player.NA and row[0] == row[1] == row[2]:
@@ -184,7 +185,7 @@ def main():
     }
 
     boards = (Board(), )
-    while not boards[-1].is_finished():
+    while not boards[-1].is_finished:
         move = players[boards[-1].player](boards[-1])
         boards = move.apply(boards)
     # LOOP-END

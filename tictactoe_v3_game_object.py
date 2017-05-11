@@ -7,7 +7,7 @@ class Player(Enum):
     O = "O"
     NA = " "
 
-    def next(self):
+    def next_player(self):
         next_players = {
             self.X: self.O,
             self.O: self.X,
@@ -16,6 +16,7 @@ class Player(Enum):
 
 # STORAGE-START
 class TicTacToe():
+
     def __init__(self):
         self.board = [[Player.NA]*3 for _ in range(3)]
         self.player = Player.X
@@ -33,7 +34,7 @@ class TicTacToe():
         x, y = move.split()
         if self.board[int(x)][int(y)] == Player.NA:
             self.board[int(x)][int(y)] = self.player
-            self.player = self.player.next()
+            self.player = self.player.next_player()
     # ACTION-END
 
     # BUG-START
@@ -42,7 +43,7 @@ class TicTacToe():
         x, y = move.split()
         if self.board[int(x)][int(y)] == Player.NA:
             self.board[int(x)][int(y)] = self.player
-        self.player = self.player.next()
+        self.player = self.player.next_player()
     # BUG-END
 
     def is_finished(self):

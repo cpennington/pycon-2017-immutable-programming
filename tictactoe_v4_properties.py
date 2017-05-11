@@ -15,7 +15,7 @@ class Player(Enum):
 # STORAGE-START
 class TicTacToe():
     def __init__(self):
-        self.board = [[Player.NA]*3 for _ in range(3)]
+        self.board = [[Player.NA]*3]*3
 # STORAGE-END
 
     # PROPERTY-START
@@ -58,6 +58,11 @@ class TicTacToe():
 
         return False
 
+class TicTacToeCorrected():
+    # FIXED-STORAGE-START
+    def __init__(self):
+        self.board = [[Player.NA]*3 for _ in range(3)]
+    # FIXED-STORAGE-END
 
 class TestTicTacToe(TestCase):
     def setUp(self):
@@ -81,10 +86,12 @@ class TestTicTacToe(TestCase):
         self.game.do_move(0, 0)
         self.assertEqual(self.game.player, Player.O)
 
+    # FAILED-TEST-START
     def test_game_end(self):
         self.assertFalse(self.game.is_finished)
         self.game.do_move(0, 0)
         self.assertFalse(self.game.is_finished)
+    # FAILED-TEST-END
         self.game.do_move(0, 1)
         self.assertFalse(self.game.is_finished)
         self.game.do_move(1, 0)
@@ -93,6 +100,24 @@ class TestTicTacToe(TestCase):
         self.assertFalse(self.game.is_finished)
         self.game.do_move(2, 0)
         self.assertTrue(self.game.is_finished)
+
+    # DEEP-TEST-START
+    def test_moves_made(self):
+        before = {
+            (x, y, self.game.board[x][y])
+            for x in range(3)
+            for y in range(3)
+        }
+        self.game.do_move(0, 0)
+        after = {
+            (x, y, self.game.board[x][y])
+            for x in range(3)
+            for y in range(3)
+        }
+        self.assertEqual(after - before, {(0, 0, Player.X)})
+        self.assertEqual(before - after, {(0, 0, Player.NA)})
+    # DEEP-TEST-END
+
 
 
 # LOOP-START

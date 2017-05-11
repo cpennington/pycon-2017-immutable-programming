@@ -40,6 +40,7 @@ class Board(namedtuple('_Board', ['board'])):
             return self
     # ACTION-END
 
+    @property
     def is_finished(self):
         for row in self.board:
             if row[0] != Player.NA and row[0] == row[1] == row[2]:
@@ -99,7 +100,7 @@ class TestTicTacToe(TestCase):
 # LOOP-START
 def main():
     board = Board()
-    while not board.is_finished():
+    while not board.is_finished:
         print(board)
         move = input(f"Player {board.player.value} (x y)? ")
         x, y = move.split()

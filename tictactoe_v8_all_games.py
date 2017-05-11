@@ -3,7 +3,7 @@ from collections import Counter, namedtuple
 from enum import Enum
 from unittest import TestCase
 from random import randrange
-from itertools import zip_longest, islice
+from itertools import zip_longest, islice, chain
 
 
 class Player(Enum):
@@ -44,11 +44,16 @@ class Board():
 
     @property
     def player(self):
-        plays = Counter(sum(self.board, ()))
-        if plays[Player.O] < plays[Player.X]:
-            return Player.O
-        else:
+        plays = 0
+        for row in self.board:
+            for col in row:
+                if col != Player.NA:
+                    plays += 1
+
+        if plays % 2 == 0:
             return Player.X
+        else:
+            return Player.O
 
     def __str__(self):
         return "--+---+--\n".join(
@@ -64,25 +69,26 @@ class Board():
         else:
             return self
 
-    def is_finished(self):
+    @property
+    def winner(self):
         for row in self.board:
             if row[0] != Player.NA and row[0] == row[1] == row[2]:
-                return True
+                return row[0]
 
         for column in range(3):
             if self.board[0][column] != Player.NA and self.board[0][column] == self.board[1][column] == self.board[2][column]:
-                return True
+                return self.board[0][column]
 
         if self.board[0][0] != Player.NA and self.board[0][0] == self.board[1][1] == self.board[2][2]:
-            return True
+            return self.board[0][0]
 
         if self.board[2][0] != Player.NA and self.board[2][0] == self.board[1][1] == self.board[0][2]:
-            return True
+            return self.board[2][0]
 
         if all(all(col != Player.NA for col in row) for row in self.board):
-            return True
+            return Player.NA
 
-        return False
+        return None
 
 
 class TestTicTacToe(TestCase):
@@ -104,19 +110,46 @@ class TestTicTacToe(TestCase):
                             self.assertNotEqual(initial.player, after_first.player)
                             self.assertNotEqual(initial.board, after_first.board)
 
+ALL_MOVES = [
+    (x, y)
+    for x in range(3)
+    for y in range(3)
+]
 
+# SEARCH-START
 def depth_first(board=None):
     if board is None:
         board = Board()
 
     yield board
 
-    for x in range(3):
-        for y in range(3):
-            next_board = board.do_move(x, y)
-            if board != next_board:
-                yield from depth_first(next_board)
+    for x, y in ALL_MOVES:
+        next_board = board.do_move(x, y)
+        if board != next_board:
+            yield from depth_first(next_board)
+# SEARCH-END
 
+# FILTER-START
+def depth_first_filter(filter_fn, board=None):
+    if board is None:
+        board = Board()
+
+    yield board
+
+    next_boards = (
+        board.do_move(x, y) for x, y in ALL_MOVES
+    )
+
+    next_boards = (
+        next_board for next_board in next_boards
+        if board != next_board
+    )
+
+    next_boards = filter_fn(board, next_boards)
+
+    for board in next_boards:
+        yield from depth_first_filter(filter_fn, board)
+# FILTER-END
 
 def _breadth_first(board=None):
     if board is None:
@@ -131,7 +164,9 @@ def _breadth_first(board=None):
     )
 
     next_boards = (
-        _breadth_first(next) for next in next_boards if next != board
+        _breadth_first(next_board)
+        for next_board in next_boards
+        if next_board != board
     )
 
     plies = zip_longest(*next_boards)
@@ -144,17 +179,33 @@ def breadth_first(board=None):
     for ply in _breadth_first(board):
         yield from ply
 
+# FILTER-FN-START
+def filter_finished(board, next_boards):
+    if board.winner is not None:
+        return
+    else:
+        yield from next_boards
+# FILTER-FN-END
+
 def main():
-    bf_boards = 0
-    for board in breadth_first():
-        bf_boards += 1
+    # for idx, board in enumerate(depth_first()):
+    #     pass
+    # print(idx)
 
-    df_boards = 0
-    for board in depth_first():
-        df_boards += 1
+    # MAIN-START
+    winning_boards = {
+        Player.X: [],
+        Player.O: [],
+        Player.NA: [],
+    }
+    for board in depth_first_filter(filter_finished):
+        if board.winner is not None:
+            winning_boards[board.winner].append(board)
 
-    print(bf_boards, df_boards)
-
+    print("O wins", len(winning_boards[Player.O]))
+    print("X wins", len(winning_boards[Player.X]))
+    print("Tie", len(winning_boards[Player.NA]))
+    # MAIN-END
 
 if __name__ == "__main__":
     sys.exit(main())
