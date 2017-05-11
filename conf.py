@@ -85,6 +85,7 @@ todo_include_todos = False
 #
 html_theme = 'revealjs'
 html_use_index = False
+html_title = None
 
 def setup(app):
     app.add_stylesheet('css/highlights.css')

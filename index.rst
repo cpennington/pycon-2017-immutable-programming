@@ -1,3 +1,5 @@
+.. title:: Immutable Programming: Writing Functional Python
+
 .. revealjs:: Immutable Python
     :subtitle: Writing Functional Python
 
