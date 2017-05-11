@@ -66,9 +66,7 @@ class Board(namedtuple('_Board', ['board'])):
                     diff.add((x, y, self.board[x][y]))
         return diff
 
-Board.__new__.__defaults__ = (tuple(
-    (Player.NA,)*3 for _ in range(3)
-),)
+Board.__new__.__defaults__ = (((Player.NA,)*3,)*3,)
 
 class TestTicTacToe(TestCase):
     # TEST-START

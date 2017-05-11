@@ -80,9 +80,7 @@ class Board(namedtuple('_Board', ['board'])):
 
         return False
 
-Board.__new__.__defaults__ = (tuple(
-    (Player.NA,)*3 for _ in range(3)
-),)
+Board.__new__.__defaults__ = (((Player.NA,)*3,)*3,)
 
 class TestTicTacToe(TestCase):
     def test_basic_play(self):

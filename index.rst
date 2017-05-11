@@ -638,6 +638,9 @@
 
 .. revealjs:: references
 
-    Talk Source Code: `bit.ly/immutable-python`_
+    Talk: `bit.ly/immutable-python-pres`_
 
-.. _bit.ly/immutable-python: http://bit.ly/immutable-python
+    Source Code: `bit.ly/immutable-python-src`_
+
+.. _bit.ly/immutable-python-pres: http://bit.ly/immutable-python-pres
+.. _bit.ly/immutable-python-src: http://bit.ly/immutable-python-src

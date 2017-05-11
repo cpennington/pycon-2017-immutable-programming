@@ -31,17 +31,7 @@ def replace(tpl, idx, value):
     return tpl[:idx] + (value, ) + tpl[idx+1:]
 
 
-class Board():
-    def __init__(self, board=None):
-        if board:
-            self._board = board
-        else:
-            self._board = tuple((Player.NA,)*3 for _ in range(3))
-
-    @property
-    def board(self):
-        return self._board
-
+class Board(namedtuple('_Board', ['board'])):
     @property
     def player(self):
         plays = 0
@@ -90,6 +80,7 @@ class Board():
 
         return None
 
+Board.__new__.__defaults__ = (((Player.NA,)*3,)*3, )
 
 class TestTicTacToe(TestCase):
     def test_basic_play(self):
