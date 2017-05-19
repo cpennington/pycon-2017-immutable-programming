@@ -28,13 +28,75 @@
     .. revealjs:: Immutability allows Local Thinking
         :title-heading: h3
 
+    .. revealjs:: Immutability in Python
+
+        .. code-block:: python
+            :class: mutable
+
+            # Attribute assignment
+            x.foo = 1
+
+            # Item assignment
+            x["foo"] = 3
+
+            # Methods that modify state
+            x.add("foo")
+
+            # Modifying an objects own attributes
+            self.foo = 4
+
+    .. revealjs:: Immutability in Python
+
+        .. code-block:: python
+            :class: immutable
+
+            # Name assignment
+            x = 1
+
+            # Reading attributes
+            x = self.foo
+
+            # Read-only methods
+            x = y.items()
+
+    .. revealjs:: Immutability in Python
+
+        .. code-block:: python
+            :class: mutable
+
+            object()
+
+            {"foo": 1}
+
+            {"foo"}
+
+            ["foo", "bar"]
+
+            (i for i in range(3))
+
+            (object(), object())
+
+    .. revealjs:: Immutability in Python
+
+        .. code-block:: python
+            :class: immutable
+
+            1
+
+            "bar"
+
+            (1, 2, 3)
+
+            ((1, 2), (2, 3))
+
+            frozenset(1, 2, 3)
+
     .. revealjs:: Tools for Local Thinking
         :title-heading: h3
 
         * @property
         * tuple (and namedtuple)
         * Commands
-        * Enum
 
         .. rv_note::
 
@@ -80,7 +142,7 @@
             :start-after: PROPERTY-START
             :end-before: PROPERTY-END
             :dedent: 4
-            :class: mutable
+            :class: immutable
 
         .. rv_note::
 
@@ -89,22 +151,6 @@
             use @property to compute the current player based on the board state.
             This helps eliminate a class of bugs where we update the board state without
             updating the player state at the same time.
-
-    .. revealjs:: Enum
-        :title-heading: h3
-        :data-transition: slide
-
-        .. literalinclude:: tictactoe_v4_properties.py
-            :language: python
-            :start-after: ENUM-START
-            :end-before: ENUM-END
-            :class: mutable
-
-        .. rv_note::
-
-            This also uses Enums to limit the set of valid values that our code has to
-            consider. Rather than risk typo errors by just using strings, we can restrict
-            our inputs to a known set of valid board positions.
 
     .. revealjs:: Tests
         :title-heading: h3
@@ -503,6 +549,23 @@
             and then a set of actions that can be performed, and how they affect the
             board state.
 
+    .. revealjs:: Tests
+        :title-heading: h3
+        :data-transition: slide
+
+        .. literalinclude:: tictactoe_v7_command.py
+            :language: python
+            :start-after: TEST-START
+            :end-before: TEST-END
+            :dedent: 4
+            :class: immutable
+
+        .. rv_note::
+
+            Lastly, separating out the commands from the main loop means that you
+            can test them independently, and check that relationships between the
+            moves hold.
+
     .. revealjs:: Loop
         :title-heading: h3
         :data-transition: slide
@@ -533,22 +596,6 @@
             It also presents a clean interface for substituting other types of
             players (like a random-AI), or a player over a network interface.
 
-    .. revealjs:: Tests
-        :title-heading: h3
-        :data-transition: slide
-
-        .. literalinclude:: tictactoe_v7_command.py
-            :language: python
-            :start-after: TEST-START
-            :end-before: TEST-END
-            :dedent: 4
-            :class: immutable
-
-        .. rv_note::
-
-            Lastly, separating out the commands from the main loop means that you
-            can test them independently, and check that relationships between the
-            moves hold.
 
 .. revealjs:: Iteration
 
@@ -698,7 +745,6 @@
         * @property
         * tuple (and namedtuple)
         * Commands
-        * Enum
 
 .. revealjs:: Questions?
 
