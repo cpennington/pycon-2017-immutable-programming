@@ -97,7 +97,7 @@ def setup(app):
 html_theme_options = {
     "lang": "en",
     "theme": "white",
-    "margin": 0.05,
+    "margin": 0.02,
     "max_scale": 3.0,
     "center": False,
     "controls": False,
