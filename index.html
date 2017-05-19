@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+
+
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Immutable Programming: Writing Functional Python</title>
+
+    
+
+    
+<link rel="stylesheet" href="_static/css/reveal.css">
+<link rel="stylesheet" href="_static/css/theme/white.css" id="theme">
+<link rel="stylesheet" href="_static/lib/css/zenburn.css">
+<link rel="stylesheet" href="_static/revealjs.css" type="text/css" />
+<link rel="stylesheet" href="_static/css/highlights.css" type="text/css" />
+
+    <!-- If the query includes 'print-pdf', include the PDF print sheet -->
+    <script>
+        if(window.location.search.match(/print-pdf/gi)) {
+            var link = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.type = 'text/css';
+            link.href = '_static/css/print/pdf.css';
+            document.getElementsByTagName('head')[0].appendChild(link);
+        }
+    </script>
+
+    <!--[if lt IE 9]>
+    <script src="_static/lib/js/html5shiv.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides">
+        
+  <section>
+<h2>Immutable Programming</h2>
+<h3>Writing Functional Python</h3>
+<p class="first">Cale Pennington</p>
+<p>&#64;vengefulpickle</p>
+<p class="last">github.com/cpennington</p>
+</section>
+<section>
+<section class="first">
+<h2>Compare</h2>
+<dl class="first docutils">
+<dt>Python</dt>
+<dd>Mutable by default (mostly)</dd>
+<dt>Haskell</dt>
+<dd>Immutable by default</dd>
+</dl>
+<aside class="last notes">
+The difference I’m going to focus this talk on is mutability. In Python, it’s possible
+(and common) to modify the values of variables (especially on objects). In Haskell, once
+you assign a value to a name, that value is fixed forever.</aside>
+</section>
+<section>
+<h3>Immutability allows Local Thinking</h3>
+</section>
+<section>
+<h2>Immutability in Python</h2>
+<div class="mutable first last highlight-python"><div class="highlight"><pre><span></span><span class="c1"># Attribute assignment</span>
+<span class="n">x</span><span class="o">.</span><span class="n">foo</span> <span class="o">=</span> <span class="mi">1</span>
+
+<span class="c1"># Item assignment</span>
+<span class="n">x</span><span class="p">[</span><span class="s2">&quot;foo&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">3</span>
+
+<span class="c1"># Methods that modify state</span>
+<span class="n">x</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;foo&quot;</span><span class="p">)</span>
+
+<span class="c1"># Modifying an objects own attributes</span>
+<span class="bp">self</span><span class="o">.</span><span class="n">foo</span> <span class="o">=</span> <span class="mi">4</span>
+</pre></div>
+</div>
+</section>
+<section>
+<h2>Immutability in Python</h2>
+<div class="immutable first last highlight-python"><div class="highlight"><pre><span></span><span class="c1"># Name assignment</span>
+<span class="n">x</span> <span class="o">=</span> <span class="mi">1</span>
+
+<span class="c1"># Reading attributes</span>
+<span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">foo</span>
+
+<span class="c1"># Read-only methods</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">y</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section>
+<h2>Immutability in Python</h2>
+<div class="mutable first last highlight-python"><div class="highlight"><pre><span></span><span class="nb">object</span><span class="p">()</span>
+
+<span class="p">{</span><span class="s2">&quot;foo&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">}</span>
+
+<span class="p">{</span><span class="s2">&quot;foo&quot;</span><span class="p">}</span>
+
+<span class="p">[</span><span class="s2">&quot;foo&quot;</span><span class="p">,</span> <span class="s2">&quot;bar&quot;</span><span class="p">]</span>
+
+<span class="p">(</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+
+<span class="p">(</span><span class="nb">object</span><span class="p">(),</span> <span class="nb">object</span><span class="p">())</span>
+</pre></div>
+</div>
+</section>
+<section>
+<h2>Immutability in Python</h2>
+<div class="immutable first last highlight-python"><div class="highlight"><pre><span></span><span class="mi">1</span>
+
+<span class="s2">&quot;bar&quot;</span>
+
+<span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+
+<span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+
+<span class="nb">frozenset</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section class="last">
+<h3>Tools for Local Thinking</h3>
+<ul class="first simple">
+<li>&#64;property</li>
+<li>tuple (and namedtuple)</li>
+<li>Commands</li>
+</ul>
+<aside class="last notes">
+In the rest of this talk, I’m going to take what’s a fairly standard Python design for
+a game of Tic-Tac-Toe, and then explore what additional options moving to an Immutable
+design presents.</aside>
+</section>
+</section>
+<section>
+<h2>The Setup</h2>
+<section class="first" data-transition="slide">
+<h3>Game Loop</h3>
+<div class="mutable first highlight-python"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="n">board</span> <span class="o">=</span> <span class="n">Board</span><span class="p">()</span>
+    <span class="k">while</span> <span class="ow">not</span> <span class="n">board</span><span class="o">.</span><span class="n">is_finished</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="n">board</span><span class="p">)</span>
+
+        <span class="n">move</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;Player {board.player.value} move (x y)? &quot;</span><span class="p">)</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">move</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+
+<span class="hll">        <span class="n">board</span><span class="o">.</span><span class="n">do_move</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">y</span><span class="p">))</span>
+</span></pre></div>
+</div>
+<div class="mutable highlight-python"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Board</span><span class="p">():</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="hll">        <span class="bp">self</span><span class="o">.</span><span class="n">board</span> <span class="o">=</span> <span class="p">[[</span><span class="n">Player</span><span class="o">.</span><span class="n">NA</span><span class="p">]</span><span class="o">*</span><span class="mi">3</span><span class="p">]</span><span class="o">*</span><span class="mi">3</span><span class="p">]</span>
+</span>
+    <span class="k">def</span> <span class="nf">do_move</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">board</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="n">y</span><span class="p">]</span> <span class="o">==</span> <span class="n">Player</span><span class="o">.</span><span class="n">NA</span><span class="p">:</span>
+<span class="hll">            <span class="bp">self</span><span class="o">.</span><span class="n">board</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="n">y</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">player</span>
+</span></pre></div>
+</div>
+<aside class="last notes">
+<p class="first">This is a fairly standard game loop that gets player input, and then calls a method
+on the game to update its state.</p>
+<p class="last">do_move modifies the state of the board, as long as there isn’t already a piece
+in that position.</p>
+</aside>
+</section>
+<section data-transition="slide">
+<h3>Property</h3>
+<div class="immutable first highlight-python"><div class="highlight"><pre><span></span><span class="nd">@property</span>
+<span class="k">def</span> <span class="nf">player</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="n">plays</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">board</span><span class="p">,</span> <span class="p">[]))</span>
+    <span class="k">if</span> <span class="n">plays</span><span class="p">[</span><span class="n">Player</span><span class="o">.</span><span class="n">O</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">plays</span><span class="p">[</span><span class="n">Player</span><span class="o">.</span><span class="n">X</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">Player</span><span class="o">.</span><span class="n">O</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">Player</span><span class="o">.</span><span class="n">X</span>
+</pre></div>
+</div>
+<aside class="last notes">
+Here we see a common Pythonic use of immutability. Rather than having a mutable
+player attribute that we have to update in sync with the board change, we
+use &#64;property to compute the current player based on the board state.
+This helps eliminate a class of bugs where we update the board state without
+updating the player state at the same time.</aside>
+</section>
+<section data-transition="slide-in fade-out">
+<h3>Tests</h3>
+<div class="mutable first last highlight-python"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">test_game_end</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">board</span><span class="o">.</span><span class="n">is_finished</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">board</span><span class="o">.</span><span class="n">do_move</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">board</span><span class="o">.</span><span class="n">is_finished</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section data-transition="fade-in slide-out">
+<h3>Tests</h3>
+<div class="mutable first highlight-python"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">test_game_end</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">board</span><span class="o">.</span><span class="n">is_finished</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">board</span><span class="o">.</span><span class="n">do_move</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<span class="hll">    <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">board</span><span class="o">.</span><span class="n">is_finished</span><span class="p">)</span>
+</span></pre></div>
+</div>
+<div class="mutable highlight-python"><div class="highlight"><pre><span></span><span class="o">================================================================</span>
+<span class="n">FAIL</span><span class="p">:</span> <span class="n">test_game_end</span> <span class="p">(</span><span class="n">tictactoe_v4_properties</span><span class="o">.</span><span class="n">TestTicTacToe</span><span class="p">)</span>
+<span class="o">----------------------------------------------------------------</span>
+<span class="n">Traceback</span> <span class="p">(</span><span class="n">most</span> <span class="n">recent</span> <span class="n">call</span> <span class="n">last</span><span class="p">):</span>
+<span class="n">File</span> <span class="s2">&quot;.../tictactoe_v4_properties.py&quot;</span><span class="p">,</span> <span class="n">line</span> <span class="mi">93</span><span class="p">,</span> <span class="ow">in</span> <span class="n">test_game_end</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">game</span><span class="o">.</span><span class="n">is_finished</span><span class="p">)</span>
+<span class="ne">AssertionError</span><span class="p">:</span> <span class="bp">True</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">false</span>
+</pre></div>
+</div>
+<aside class="last notes">
+Uh oh! One of the tests failed. What happened?</aside>
+</section>
+<section data-transition="slide-in fade-out">
+<h3>Tests</h3>
+<div class="mutable first highlight-python"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">test_moves_made</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="c1"># Store the state of the board before a move</span>
+    <span class="n">before</span> <span class="o">=</span> <span class="p">{(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">board</span><span class="o">.</span><span class="n">board</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="n">y</span><span class="p">])</span> <span class="k">for</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="ow">in</span> <span class="n">ALL_MOVES</span><span class="p">}</span>
+
+    <span class="c1"># Make a single move</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">board</span><span class="o">.</span><span class="n">do_move</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+    <span class="c1"># Store the state of the board after the move</span>
+    <span class="n">after</span> <span class="o">=</span> <span class="p">{(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">board</span><span class="o">.</span><span class="n">board</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="n">y</span><span class="p">])</span> <span class="k">for</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="ow">in</span> <span class="n">ALL_MOVES</span><span class="p">}</span>
+
+    <span class="c1"># Compare the state before and after</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">after</span> <span class="o">-</span> <span class="n">before</span><span class="p">,</span> <span class="p">{(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">Player</span><span class="o">.</span><span class="n">X</span><span class="p">)})</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">before</span> <span class="o">-</span> <span class="n">after</span><span class="p">,</span> <span class="p">{(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">Player</span><span class="o">.</span><span class="n">NA</span><span class="p">)})</span>
+</pre></div>
+</div>
+<aside class="last notes">
+Let’s add a new test, that compares the full state of the board,
+before and after the move is made, and asserts that only the expected
+changes are made.</aside>
+</section>
+<section data-transition="fade">
+<h3>Tests</h3>
+<div class="mutable first last highlight-python"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">test_moves_made</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="c1"># Store the state of the board before a move</span>
+<span class="hll">    <span class="n">before</span> <span class="o">=</span> <span class="p">{(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">board</span><span class="o">.</span><span class="n">board</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="n">y</span><span class="p">])</span> <span class="k">for</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="ow">in</span> <span class="n">ALL_MOVES</span><span class="p">}</span>
+</span>
+    <span class="c1"># Make a single move</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">board</span><span class="o">.</span><span class="n">do_move</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+    <span class="c1"># Store the state of the board after the move</span>
+    <span class="n">after</span> <span class="o">=</span> <span class="p">{(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">board</span><span class="o">.</span><span class="n">board</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="n">y</span><span class="p">])</span> <span class="k">for</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="ow">in</span> <span class="n">ALL_MOVES</span><span class="p">}</span>
+
+    <span class="c1"># Compare the state before and after</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">after</span> <span class="o">-</span> <span class="n">before</span><span class="p">,</span> <span class="p">{(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">Player</span><span class="o">.</span><span class="n">X</span><span class="p">)})</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">before</span> <span class="o">-</span> <span class="n">after</span><span class="p">,</span> <span class="p">{(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">Player</span><span class="o">.</span><span class="n">NA</span><span class="p">)})</span>
+</pre></div>
+</div>
+</section>
+<section data-transition="fade-in slide-out">
+<h3>Tests</h3>
+<div class="mutable first last highlight-python"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">test_moves_made</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="c1"># Store the state of the board before a move</span>
+    <span class="n">before</span> <span class="o">=</span> <span class="p">{(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">board</span><span class="o">.</span><span class="n">board</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="n">y</span><span class="p">])</span> <span class="k">for</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="ow">in</span> <span class="n">ALL_MOVES</span><span class="p">}</span>
+
+    <span class="c1"># Make a single move</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">board</span><span class="o">.</span><span class="n">do_move</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+    <span class="c1"># Store the state of the board after the move</span>
+<span class="hll">    <span class="n">after</span> <span class="o">=</span> <span class="p">{(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">board</span><span class="o">.</span><span class="n">board</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="n">y</span><span class="p">])</span> <span class="k">for</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="ow">in</span> <span class="n">ALL_MOVES</span><span class="p">}</span>
+</span>
+    <span class="c1"># Compare the state before and after</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">after</span> <span class="o">-</span> <span class="n">before</span><span class="p">,</span> <span class="p">{(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">Player</span><span class="o">.</span><span class="n">X</span><span class="p">)})</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">before</span> <span class="o">-</span> <span class="n">after</span><span class="p">,</span> <span class="p">{(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">Player</span><span class="o">.</span><span class="n">NA</span><span class="p">)})</span>
+</pre></div>
+</div>
+</section>
+<section data-transition="slide">
+<h3>Tests</h3>
+<div class="mutable first highlight-python"><div class="highlight"><pre><span></span><span class="o">=============================================================</span>
+<span class="n">FAIL</span><span class="p">:</span> <span class="n">test_moves_made</span> <span class="p">(</span><span class="n">tictactoe_v4_properties</span><span class="o">.</span><span class="n">TestTicTacToe</span><span class="p">)</span>
+<span class="o">-------------------------------------------------------------</span>
+<span class="n">Traceback</span> <span class="p">(</span><span class="n">most</span> <span class="n">recent</span> <span class="n">call</span> <span class="n">last</span><span class="p">):</span>
+<span class="n">File</span> <span class="s2">&quot;.../tictactoe_v4_properties.py&quot;</span><span class="p">,</span> <span class="n">line</span> <span class="mi">116</span><span class="p">,</span>
+<span class="ow">in</span> <span class="n">test_moves_made</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">after</span> <span class="o">-</span> <span class="n">before</span><span class="p">,</span> <span class="p">{(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">Player</span><span class="o">.</span><span class="n">X</span><span class="p">)})</span>
+<span class="ne">AssertionError</span><span class="p">:</span> <span class="n">Items</span> <span class="ow">in</span> <span class="n">the</span> <span class="n">first</span> <span class="nb">set</span> <span class="n">but</span> <span class="ow">not</span> <span class="n">the</span> <span class="n">second</span><span class="p">:</span>
+<span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">&lt;</span><span class="n">Player</span><span class="o">.</span><span class="n">X</span><span class="p">:</span> <span class="s1">&#39;X&#39;</span><span class="o">&gt;</span><span class="p">)</span>
+<span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">&lt;</span><span class="n">Player</span><span class="o">.</span><span class="n">X</span><span class="p">:</span> <span class="s1">&#39;X&#39;</span><span class="o">&gt;</span><span class="p">)</span>
+</pre></div>
+</div>
+<aside class="last notes">
+That test fails, as you might expect, and shows us that somehow we’re
+setting the entire first column to X, even though we were only trying
+to set a single square. Why?</aside>
+</section>
+<section data-transition="slide-in fade-out">
+<h3>Tests</h3>
+<div class="mutable first highlight-python"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Board</span><span class="p">():</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">board</span> <span class="o">=</span> <span class="p">[[</span><span class="n">Player</span><span class="o">.</span><span class="n">NA</span><span class="p">]</span><span class="o">*</span><span class="mi">3</span><span class="p">]</span><span class="o">*</span><span class="mi">3</span><span class="p">]</span>
+</pre></div>
+</div>
+<div class="fragment mutable highlight-python"><div class="highlight"><pre><span></span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">board</span> <span class="o">=</span> <span class="p">[[</span><span class="n">Player</span><span class="o">.</span><span class="n">NA</span><span class="p">]</span><span class="o">*</span><span class="mi">3</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)]</span>
+</pre></div>
+</div>
+<section class="fragment saaad last">
+Spooky action at a distance</section>
+</section>
+<section class="last" data-transition="fade-in slide-out">
+<h3>Tests</h3>
+<div class="mutable first highlight-python"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Board</span><span class="p">():</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">board</span> <span class="o">=</span> <span class="p">[[</span><span class="n">Player</span><span class="o">.</span><span class="n">NA</span><span class="p">]</span><span class="o">*</span><span class="mi">3</span><span class="p">]</span><span class="o">*</span><span class="mi">3</span><span class="p">]</span>
+</pre></div>
+</div>
+<div class="mutable highlight-python"><div class="highlight"><pre><span></span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">board</span> <span class="o">=</span> <span class="p">[[</span><span class="n">Player</span><span class="o">.</span><span class="n">NA</span><span class="p">]</span><span class="o">*</span><span class="mi">3</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)]</span>
+</pre></div>
+</div>
+<section class="saaad">
+Saaad… 🙁</section>
+<aside class="last notes">
+<p class="first">Let’s look back at where we store the board state. It turns out, using
+list multiplication returns multiple references to the <em>same</em> list contents.
+In this case, it means we actually only have one row, referenced 3 times,
+rather than having three independent rows.</p>
+<p class="last">One fix is to be more careful about crafting our board state. But another
+option would be to make it so that having multiple references to the
+same row object wouldn’t be an issue, by making the rows immutable.</p>
+</aside>
+</section>
+</section>
+<section>
+<h2>Immutable</h2>
+<section class="first" data-transition="slide">
+<h3>Storage</h3>
+<div class="immutable first highlight-python"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Board</span><span class="p">():</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+         <span class="bp">self</span><span class="o">.</span><span class="n">board</span> <span class="o">=</span> <span class="p">((</span><span class="n">Player</span><span class="o">.</span><span class="n">NA</span><span class="p">,</span> <span class="p">)</span><span class="o">*</span><span class="mi">3</span><span class="p">,</span> <span class="p">)</span><span class="o">*</span><span class="mi">3</span>
+</pre></div>
+</div>
+<aside class="last notes">
+This change would prevent the earlier bug, but would also
+require rewriting all of our operations around modifying
+the board state (because we can’t change it in-place anymore).
+If we’re going to do that, maybe we can get some other benefits as well.
+Let’s look back at the test we wrote to compare the before and after board
+states.</aside>
+</section>
+<section data-transition="slide-in fade-out">
+<h3>Tests</h3>
+<div class="mutable first last highlight-python"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">test_moves_made</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="c1"># Store the state of the board before a move</span>
+    <span class="n">before</span> <span class="o">=</span> <span class="p">{(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">board</span><span class="o">.</span><span class="n">board</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="n">y</span><span class="p">])</span> <span class="k">for</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="ow">in</span> <span class="n">ALL_MOVES</span><span class="p">}</span>
+
+    <span class="c1"># Make a single move</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">board</span><span class="o">.</span><span class="n">do_move</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+    <span class="c1"># Store the state of the board after the move</span>
+    <span class="n">after</span> <span class="o">=</span> <span class="p">{(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">board</span><span class="o">.</span><span class="n">board</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="n">y</span><span class="p">])</span> <span class="k">for</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="ow">in</span> <span class="n">ALL_MOVES</span><span class="p">}</span>
+
+    <span class="c1"># Compare the state before and after</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">after</span> <span class="o">-</span> <span class="n">before</span><span class="p">,</span> <span class="p">{(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">Player</span><span class="o">.</span><span class="n">X</span><span class="p">)})</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">before</span> <span class="o">-</span> <span class="n">after</span><span class="p">,</span> <span class="p">{(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">Player</span><span class="o">.</span><span class="n">NA</span><span class="p">)})</span>
+</pre></div>
+</div>
+</section>
+<section data-transition="fade-in slide-out">
+<h3>Tests</h3>
+<div class="immutable first highlight-python"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">test_moves_made</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="c1"># Store the state of the board before a move</span>
+<span class="hll">    <span class="n">before</span> <span class="o">=</span> <span class="n">BoardState</span><span class="p">()</span>
+</span>
+
+
+
+    <span class="c1"># Store the state of the board after the move</span>
+<span class="hll">    <span class="n">after</span> <span class="o">=</span> <span class="n">before</span><span class="o">.</span><span class="n">do_move</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+</span>
+    <span class="c1"># Compare the state before and after</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">after</span> <span class="o">-</span> <span class="n">before</span><span class="p">,</span> <span class="p">{(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">Player</span><span class="o">.</span><span class="n">X</span><span class="p">)})</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">before</span> <span class="o">-</span> <span class="n">after</span><span class="p">,</span> <span class="p">{(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">Player</span><span class="o">.</span><span class="n">NA</span><span class="p">)})</span>
+</pre></div>
+</div>
+<aside class="last notes">
+This version of the test is significantly clearer. Making a move
+on the board doesn’t modify the board, it just returns a new board
+with the modified state. Now we can easily compare the before
+and after results.</aside>
+</section>
+<section data-transition="slide-in fade-out">
+<h3>Storage</h3>
+<div class="immutable first last highlight-python"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Board</span><span class="p">():</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+         <span class="bp">self</span><span class="o">.</span><span class="n">board</span> <span class="o">=</span> <span class="p">((</span><span class="n">Player</span><span class="o">.</span><span class="n">NA</span><span class="p">,</span> <span class="p">)</span><span class="o">*</span><span class="mi">3</span><span class="p">,</span> <span class="p">)</span><span class="o">*</span><span class="mi">3</span>
+</pre></div>
+</div>
+</section>
+<section data-transition="fade-in slide-out">
+<h3>Storage</h3>
+<div class="immutable first last highlight-python"><div class="highlight"><pre><span></span><span class="hll"><span class="k">class</span> <span class="nc">BoardState</span><span class="p">(</span><span class="n">namedtuple</span><span class="p">(</span><span class="s1">&#39;_BoardState&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;board&#39;</span><span class="p">])):</span>
+</span>    <span class="o">...</span>
+
+<span class="n">BoardState</span><span class="o">.</span><span class="fm">__new__</span><span class="o">.</span><span class="vm">__defaults__</span> <span class="o">=</span> <span class="p">(((</span><span class="n">Player</span><span class="o">.</span><span class="n">NA</span><span class="p">,</span> <span class="p">)</span><span class="o">*</span><span class="mi">3</span><span class="p">,</span> <span class="p">)</span><span class="o">*</span><span class="mi">3</span><span class="p">,</span> <span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section data-transition="slide">
+<h3>namedtuple</h3>
+<div class="first highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">namedtuple</span>
+
+<span class="n">Widgit</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s1">&#39;Widgit&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;height&#39;</span><span class="p">,</span> <span class="s1">&#39;weight&#39;</span><span class="p">])</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">Widgit</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">)</span>
+<span class="n">x</span><span class="o">.</span><span class="n">height</span>  <span class="c1"># 10</span>
+<span class="n">x</span><span class="o">.</span><span class="n">weight</span>  <span class="c1"># 20</span>
+<span class="nb">list</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>   <span class="c1"># [10, 20]</span>
+</pre></div>
+</div>
+<aside class="last notes">
+<p class="first">namedtuple is a function that comes in the python standard library,
+in the collections package. Calling it generates a new subclass of
+tuple that has attribute accessors for each element in the tuple.
+Because it derives from tuple, the attributes are immutable. This
+makes it an easy drop-in way to add immutablity to an existing codebase.</p>
+<p class="last">(It also gives you equality checking, __str__, and a number of other convenience
+methods for free).</p>
+</aside>
+</section>
+<section data-transition="slide">
+<h3>Storage</h3>
+<div class="immutable first highlight-python"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">BoardState</span><span class="p">(</span><span class="n">namedtuple</span><span class="p">(</span><span class="s1">&#39;_BoardState&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;board&#39;</span><span class="p">])):</span>
+    <span class="o">...</span>
+
+<span class="hll"><span class="n">BoardState</span><span class="o">.</span><span class="fm">__new__</span><span class="o">.</span><span class="vm">__defaults__</span> <span class="o">=</span> <span class="p">(((</span><span class="n">Player</span><span class="o">.</span><span class="n">NA</span><span class="p">,</span> <span class="p">)</span><span class="o">*</span><span class="mi">3</span><span class="p">,</span> <span class="p">)</span><span class="o">*</span><span class="mi">3</span><span class="p">,</span> <span class="p">)</span>
+</span></pre></div>
+</div>
+<aside class="last notes">
+<p class="first">To implement do_move that way, we’ll make Board immutable. My bread-and-butter for
+immutability in Python is namedtuple, from the collections package in the standard
+library. It gives you all of the nice properties of an object (named attribute access,
+equality checks, etc), without requiring much boilerplate.</p>
+<p>The second line works around a restriction in namedtuples, which is that normally,
+they don’t have any default values. By setting the __defaults__ on __new__, you can
+inject default values for any trailing attributes in the namedtuple constructor.</p>
+<p class="last">You can also see that we use the same storage layout as in the mutable case,
+but using tuples instead of lists so that they can’t be modified.</p>
+</aside>
+</section>
+<section data-transition="slide-in fade-out">
+<h3>Action</h3>
+<div class="mutable first highlight-python"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">do_move</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">board</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="n">y</span><span class="p">]</span> <span class="o">==</span> <span class="n">Player</span><span class="o">.</span><span class="n">NA</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">board</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="n">y</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">player</span>
+</pre></div>
+</div>
+<aside class="last notes">
+Just as a reminder, here’s what the code looked like in the mutable case.</aside>
+</section>
+<section class="last" data-transition="fade-in slide-out">
+<h3>Action</h3>
+<div class="immutable first highlight-python"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">do_move</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">board</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="n">y</span><span class="p">]</span> <span class="o">==</span> <span class="n">Player</span><span class="o">.</span><span class="n">NA</span><span class="p">:</span>
+        <span class="n">new_row</span> <span class="o">=</span> <span class="n">replace</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">board</span><span class="p">[</span><span class="n">x</span><span class="p">],</span> <span class="n">y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">player</span><span class="p">)</span>
+        <span class="n">new_board</span> <span class="o">=</span> <span class="n">replace</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">board</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">new_row</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">BoardState</span><span class="p">(</span><span class="n">new_board</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span>
+</pre></div>
+</div>
+<div class="immutable highlight-python"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">replace</span><span class="p">(</span><span class="n">tpl</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">tpl</span><span class="p">[:</span><span class="n">idx</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">)</span> <span class="o">+</span> <span class="n">tpl</span><span class="p">[</span><span class="n">idx</span><span class="o">+</span><span class="mi">1</span><span class="p">:]</span>
+</pre></div>
+</div>
+<aside class="last notes">
+The implementation of do_move has the same conditional as before, but instead of
+modifying the state in-place, it creates another Board and returns that. If
+the move is invalid, it returns the current board. Because the board is immutable,
+there’s no need to make a copy when return an new identical object.</aside>
+</section>
+</section>
+<section>
+<h2>Commands</h2>
+<section class="first" data-transition="slide-in fade-out">
+<h3>Player</h3>
+<div class="immutable first highlight-python"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="n">states</span> <span class="o">=</span> <span class="p">[</span><span class="n">BoardState</span><span class="p">()]</span>
+    <span class="k">while</span> <span class="ow">not</span> <span class="n">states</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">is_finished</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="n">states</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">move</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;Player {states[-1].player.value}: &quot;</span>
+                      <span class="s2">&quot;x y to move, u to undo, &quot;</span>
+                      <span class="s2">&quot;gN to revert to move N)? &quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">move</span> <span class="o">==</span> <span class="s1">&#39;u&#39;</span><span class="p">:</span>
+            <span class="n">states</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="n">move</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;g&#39;</span><span class="p">):</span>
+            <span class="n">states</span> <span class="o">=</span> <span class="n">states</span><span class="p">[:</span><span class="nb">int</span><span class="p">(</span><span class="n">move</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;g&#39;</span><span class="p">,</span><span class="s1">&#39;&#39;</span><span class="p">))</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">move</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+                <span class="n">states</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">states</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">do_move</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">y</span><span class="p">)))</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="k">print</span><span class="p">(</span><span class="s2">&quot;Invalid move&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<aside class="last notes">
+Instead, we can separate the logic into a function that presents the board
+to the player, and returns their action …</aside>
+</section>
+<section data-transition="fade-in slide-out">
+<h3>Player</h3>
+<div class="immutable first highlight-python"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">move_human</span><span class="p">(</span><span class="n">state</span><span class="p">):</span>
+
+<span class="hll">    <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+</span>        <span class="k">print</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
+        <span class="n">move</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;Player {state.player.value}: &quot;</span>
+                      <span class="s2">&quot;x y to move, u to undo, &quot;</span>
+                      <span class="s2">&quot;gN to revert to move N)? &quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">move</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;u&#39;</span><span class="p">):</span>
+<span class="hll">            <span class="k">return</span> <span class="n">Undo</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+</span>        <span class="k">elif</span> <span class="n">move</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;g&#39;</span><span class="p">):</span>
+<span class="hll">            <span class="k">return</span> <span class="n">RevertTo</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">move</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;g&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">))</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+</span>        <span class="k">else</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">move</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+<span class="hll">                <span class="k">return</span> <span class="n">Move</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">y</span><span class="p">))</span>
+</span>            <span class="k">except</span><span class="p">:</span>
+                <span class="k">print</span><span class="p">(</span><span class="s2">&quot;Invalid move&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<aside class="last notes">
+Instead, we can separate the logic into a function that presents the board
+to the player, and returns their action …</aside>
+</section>
+<section data-transition="slide-in fade-out">
+<div class="immutable first last highlight-python"><div class="highlight"><pre><span></span><span class="hll"><span class="k">class</span> <span class="nc">Undo</span><span class="p">(</span><span class="n">namedtuple</span><span class="p">(</span><span class="s1">&#39;_Undo&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;count&#39;</span><span class="p">])):</span>
+</span>    <span class="k">def</span> <span class="nf">apply</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">board_states</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">board_states</span><span class="p">[:</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">count</span><span class="p">]</span>
+
+<span class="hll"><span class="k">class</span> <span class="nc">Move</span><span class="p">(</span><span class="n">namedtuple</span><span class="p">(</span><span class="s1">&#39;_Move&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">])):</span>
+</span>    <span class="k">def</span> <span class="nf">apply</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">board_states</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">board_states</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">board</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">]</span> <span class="o">==</span> <span class="n">Player</span><span class="o">.</span><span class="n">NA</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">board_states</span> <span class="o">+</span> <span class="p">(</span>
+                <span class="n">board_states</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">do_move</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">),</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">board_states</span>
+
+<span class="hll"><span class="k">class</span> <span class="nc">RevertTo</span><span class="p">(</span><span class="n">namedtuple</span><span class="p">(</span><span class="s1">&#39;_RevertTo&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;idx&#39;</span><span class="p">])):</span>
+</span>    <span class="k">def</span> <span class="nf">apply</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">board_states</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">board_states</span><span class="p">[:</span><span class="bp">self</span><span class="o">.</span><span class="n">idx</span><span class="p">]</span>
+</pre></div>
+</div>
+</section>
+<section data-transition="fade">
+<div class="immutable first last highlight-python"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Undo</span><span class="p">(</span><span class="n">namedtuple</span><span class="p">(</span><span class="s1">&#39;_Undo&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;count&#39;</span><span class="p">])):</span>
+<span class="hll">    <span class="k">def</span> <span class="nf">apply</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">board_states</span><span class="p">):</span>
+</span>        <span class="k">return</span> <span class="n">board_states</span><span class="p">[:</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">count</span><span class="p">]</span>
+
+<span class="k">class</span> <span class="nc">Move</span><span class="p">(</span><span class="n">namedtuple</span><span class="p">(</span><span class="s1">&#39;_Move&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">])):</span>
+<span class="hll">    <span class="k">def</span> <span class="nf">apply</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">board_states</span><span class="p">):</span>
+</span>        <span class="k">if</span> <span class="n">board_states</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">board</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">]</span> <span class="o">==</span> <span class="n">Player</span><span class="o">.</span><span class="n">NA</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">board_states</span> <span class="o">+</span> <span class="p">(</span>
+                <span class="n">board_states</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">do_move</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">),</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">board_states</span>
+
+<span class="k">class</span> <span class="nc">RevertTo</span><span class="p">(</span><span class="n">namedtuple</span><span class="p">(</span><span class="s1">&#39;_RevertTo&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;idx&#39;</span><span class="p">])):</span>
+<span class="hll">    <span class="k">def</span> <span class="nf">apply</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">board_states</span><span class="p">):</span>
+</span>        <span class="k">return</span> <span class="n">board_states</span><span class="p">[:</span><span class="bp">self</span><span class="o">.</span><span class="n">idx</span><span class="p">]</span>
+</pre></div>
+</div>
+</section>
+<section data-transition="fade-in slide-out">
+<div class="immutable first highlight-python"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Undo</span><span class="p">(</span><span class="n">namedtuple</span><span class="p">(</span><span class="s1">&#39;_Undo&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;count&#39;</span><span class="p">])):</span>
+    <span class="k">def</span> <span class="nf">apply</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">board_states</span><span class="p">):</span>
+<span class="hll">        <span class="k">return</span> <span class="n">board_states</span><span class="p">[:</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">count</span><span class="p">]</span>
+</span>
+<span class="k">class</span> <span class="nc">Move</span><span class="p">(</span><span class="n">namedtuple</span><span class="p">(</span><span class="s1">&#39;_Move&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">])):</span>
+    <span class="k">def</span> <span class="nf">apply</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">board_states</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">board_states</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">board</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">]</span> <span class="o">==</span> <span class="n">Player</span><span class="o">.</span><span class="n">NA</span><span class="p">:</span>
+<span class="hll">            <span class="k">return</span> <span class="n">board_states</span> <span class="o">+</span> <span class="p">(</span>
+</span>                <span class="n">board_states</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">do_move</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">),</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+<span class="hll">            <span class="k">return</span> <span class="n">board_states</span>
+</span>
+<span class="k">class</span> <span class="nc">RevertTo</span><span class="p">(</span><span class="n">namedtuple</span><span class="p">(</span><span class="s1">&#39;_RevertTo&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;idx&#39;</span><span class="p">])):</span>
+    <span class="k">def</span> <span class="nf">apply</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">board_states</span><span class="p">):</span>
+<span class="hll">        <span class="k">return</span> <span class="n">board_states</span><span class="p">[:</span><span class="bp">self</span><span class="o">.</span><span class="n">idx</span><span class="p">]</span>
+</span></pre></div>
+</div>
+<aside class="last notes">
+and then a set of actions that can be performed, and how they affect the
+board state.</aside>
+</section>
+<section data-transition="slide">
+<h3>Tests</h3>
+<div class="immutable first highlight-python"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">test_revert</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+        <span class="n">RevertTo</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">states</span><span class="p">),</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">states</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span>
+    <span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">test_inverse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="n">start</span> <span class="o">=</span> <span class="p">(</span><span class="n">BoardState</span><span class="p">(),</span> <span class="p">)</span>
+    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+                <span class="n">Undo</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">Move</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">start</span><span class="p">)),</span>
+                <span class="n">start</span>
+            <span class="p">)</span>
+</pre></div>
+</div>
+<aside class="last notes">
+Lastly, separating out the commands from the main loop means that you
+can test them independently, and check that relationships between the
+moves hold.</aside>
+</section>
+<section data-transition="slide">
+<h3>Loop</h3>
+<div class="immutable first highlight-python"><div class="highlight"><pre><span></span>    <span class="n">player_types</span> <span class="o">=</span> <span class="p">[</span><span class="n">move_human</span><span class="p">,</span> <span class="n">move_random</span><span class="p">]</span>
+    <span class="n">players</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">Player</span><span class="o">.</span><span class="n">X</span><span class="p">:</span> <span class="n">player_types</span><span class="p">[</span><span class="n">x_choice</span><span class="p">],</span>
+        <span class="n">Player</span><span class="o">.</span><span class="n">O</span><span class="p">:</span> <span class="n">player_types</span><span class="p">[</span><span class="n">y_choice</span><span class="p">],</span>
+    <span class="p">}</span>
+
+    <span class="n">states</span> <span class="o">=</span> <span class="p">(</span><span class="n">BoardState</span><span class="p">(),</span> <span class="p">)</span>
+    <span class="k">while</span> <span class="ow">not</span> <span class="n">states</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">is_finished</span><span class="p">:</span>
+        <span class="n">move</span> <span class="o">=</span> <span class="n">players</span><span class="p">[</span><span class="n">states</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">player</span><span class="p">](</span><span class="n">states</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">states</span> <span class="o">=</span> <span class="n">move</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">states</span><span class="p">)</span>
+</pre></div>
+</div>
+<aside class="last notes">
+The game loop ends up significantly simpler, because it just has to tie
+those two concepts together.</aside>
+</section>
+<section class="last" data-transition="slide">
+<h3>Random</h3>
+<div class="immutable first highlight-python"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">move_random</span><span class="p">(</span><span class="n">state</span><span class="p">):</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">randrange</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">randrange</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">Move</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+</pre></div>
+</div>
+<aside class="last notes">
+It also presents a clean interface for substituting other types of
+players (like a random-AI), or a player over a network interface.</aside>
+</section>
+</section>
+<section>
+<h2>Iteration</h2>
+<section class="first" data-transition="slide-in fade-out">
+<h3>Search</h3>
+<div class="mutable first highlight-python"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">depth_first</span><span class="p">(</span><span class="n">board</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">board</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">board</span> <span class="o">=</span> <span class="n">Board</span><span class="p">()</span>
+
+    <span class="k">yield</span> <span class="n">board</span>
+
+    <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">ALL_MOVES</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">board</span><span class="o">.</span><span class="n">board</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="n">y</span><span class="p">]</span> <span class="o">!=</span> <span class="n">Player</span><span class="o">.</span><span class="n">NA</span><span class="p">:</span>
+            <span class="n">board</span><span class="o">.</span><span class="n">do_move</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">yield from</span> <span class="n">depth_first</span><span class="p">(</span><span class="n">board</span><span class="p">)</span>
+            <span class="k">finally</span><span class="p">:</span>
+                <span class="n">board</span><span class="o">.</span><span class="n">board</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="n">y</span><span class="p">]</span> <span class="o">=</span> <span class="n">Player</span><span class="o">.</span><span class="n">NA</span>
+</pre></div>
+</div>
+<section class="saaad fragment">
+Saaad… 🙁</section>
+<aside class="last notes">
+<p class="first">Say now that we want to analyze TicTacToe. We could look through all
+possible games, and see how many X wins vs how many Y wins.</p>
+<p class="last">This code does the trick, but what happens if the caller of depth_first
+makes a modification to the board? Or passes the board to something else
+that makes a modification? If that happens, the rest of the iteration will
+be over the modified board (and we’ll miss some game states).</p>
+</aside>
+</section>
+<section data-transition="fade-in fade-out">
+<h3>Search</h3>
+<div class="mutable first last highlight-python"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">depth_first</span><span class="p">(</span><span class="n">board</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">board</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">board</span> <span class="o">=</span> <span class="n">Board</span><span class="p">()</span>
+
+    <span class="k">yield</span> <span class="n">board</span>
+
+    <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">ALL_MOVES</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">board</span><span class="o">.</span><span class="n">board</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="n">y</span><span class="p">]</span> <span class="o">!=</span> <span class="n">Player</span><span class="o">.</span><span class="n">NA</span><span class="p">:</span>
+            <span class="n">old_board</span> <span class="o">=</span> <span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">board</span><span class="o">.</span><span class="n">board</span><span class="p">[</span><span class="n">x</span><span class="p">])</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)]</span>
+            <span class="n">board</span><span class="o">.</span><span class="n">do_move</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">yield from</span> <span class="n">depth_first</span><span class="p">(</span><span class="n">board</span><span class="p">)</span>
+            <span class="k">finally</span><span class="p">:</span>
+                <span class="n">board</span><span class="o">.</span><span class="n">board</span> <span class="o">=</span> <span class="n">old_board</span>
+</pre></div>
+</div>
+</section>
+<section data-transition="fade-in fade-out">
+<h3>Search</h3>
+<div class="mutable first highlight-python"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">depth_first</span><span class="p">(</span><span class="n">board</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">board</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">board</span> <span class="o">=</span> <span class="n">Board</span><span class="p">()</span>
+
+    <span class="k">yield</span> <span class="n">board</span>
+
+    <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">ALL_MOVES</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">board</span><span class="o">.</span><span class="n">board</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="n">y</span><span class="p">]</span> <span class="o">!=</span> <span class="n">Player</span><span class="o">.</span><span class="n">NA</span><span class="p">:</span>
+            <span class="n">old_board</span> <span class="o">=</span> <span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">board</span><span class="o">.</span><span class="n">board</span><span class="p">[</span><span class="n">x</span><span class="p">])</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)]</span>
+            <span class="n">board</span><span class="o">.</span><span class="n">do_move</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">yield from</span> <span class="n">depth_first</span><span class="p">(</span><span class="n">board</span><span class="p">)</span>
+            <span class="k">finally</span><span class="p">:</span>
+                <span class="n">board</span><span class="o">.</span><span class="n">board</span> <span class="o">=</span> <span class="n">old_board</span>
+</pre></div>
+</div>
+<section class="saaad">
+Saaad… 🙁</section>
+<aside class="last notes">
+This code fixes that problem, by duplicating the list contents
+of the board at every step.</aside>
+</section>
+<section data-transition="fade-in slide-out">
+<h3>Search</h3>
+<div class="immutable first highlight-python"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">depth_first</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">state</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">state</span> <span class="o">=</span> <span class="n">BoardState</span><span class="p">()</span>
+
+    <span class="k">yield</span> <span class="n">state</span>
+
+    <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">ALL_MOVES</span><span class="p">:</span>
+        <span class="n">next_state</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">do_move</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">state</span> <span class="o">!=</span> <span class="n">next_state</span><span class="p">:</span>
+            <span class="k">yield from</span> <span class="n">depth_first</span><span class="p">(</span><span class="n">next_state</span><span class="p">)</span>
+</pre></div>
+</div>
+<aside class="last notes">
+With our immutable implementation, the code gets much simpler.</aside>
+</section>
+<section data-transition="slide">
+<h3>Filter</h3>
+<div class="immutable first highlight-python"><div class="highlight"><pre><span></span><span class="hll"><span class="k">def</span> <span class="nf">depth_first_filter</span><span class="p">(</span><span class="n">filter_fn</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+</span>    <span class="k">if</span> <span class="n">state</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">state</span> <span class="o">=</span> <span class="n">BoardState</span><span class="p">()</span>
+
+    <span class="k">yield</span> <span class="n">state</span>
+
+    <span class="n">next_states</span> <span class="o">=</span> <span class="p">(</span><span class="n">state</span><span class="o">.</span><span class="n">do_move</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">ALL_MOVES</span><span class="p">)</span>
+
+    <span class="n">next_states</span> <span class="o">=</span> <span class="p">(</span><span class="n">next_state</span> <span class="k">for</span> <span class="n">next_state</span> <span class="ow">in</span> <span class="n">next_states</span>
+                   <span class="k">if</span> <span class="n">state</span> <span class="o">!=</span> <span class="n">next_state</span><span class="p">)</span>
+
+<span class="hll">    <span class="n">next_states</span> <span class="o">=</span> <span class="n">filter_fn</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">next_states</span><span class="p">)</span>
+</span>
+    <span class="k">for</span> <span class="n">next_state</span> <span class="ow">in</span> <span class="n">next_states</span><span class="p">:</span>
+        <span class="k">yield from</span> <span class="n">depth_first_filter</span><span class="p">(</span><span class="n">filter_fn</span><span class="p">,</span> <span class="n">next_state</span><span class="p">)</span>
+</pre></div>
+</div>
+<aside class="last notes">
+<p class="first">Just iterating over all of the states is useful, but it’s even
+better when you can direct the search. So, we can add a step that
+uses a provided function to filter (and order) the upcoming boards
+to be searched.</p>
+<p class="last">For example, let’s look at how many games are won by X rather than O.
+We can start by only exploring un-finished games.</p>
+</aside>
+</section>
+<section data-transition="slide">
+<h3>Filter Function</h3>
+<div class="immutable first highlight-python"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">filter_finished</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">next_states</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">state</span><span class="o">.</span><span class="n">winner</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">return</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">yield from</span> <span class="n">next_states</span>
+</pre></div>
+</div>
+<aside class="last notes">
+This stops the search after it finds a board that is finished.</aside>
+</section>
+<section data-transition="slide">
+<h3>Main</h3>
+<div class="immutable first highlight-python"><div class="highlight"><pre><span></span><span class="n">winning_states</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">Player</span><span class="o">.</span><span class="n">X</span><span class="p">:</span> <span class="p">[],</span>
+    <span class="n">Player</span><span class="o">.</span><span class="n">O</span><span class="p">:</span> <span class="p">[],</span>
+    <span class="n">Player</span><span class="o">.</span><span class="n">NA</span><span class="p">:</span> <span class="p">[],</span>
+<span class="p">}</span>
+<span class="k">for</span> <span class="n">state</span> <span class="ow">in</span> <span class="n">depth_first_filter</span><span class="p">(</span><span class="n">filter_finished</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">state</span><span class="o">.</span><span class="n">winner</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">winning_states</span><span class="p">[</span><span class="n">state</span><span class="o">.</span><span class="n">winner</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
+
+<span class="k">print</span><span class="p">(</span><span class="s2">&quot;O wins&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">winning_states</span><span class="p">[</span><span class="n">Player</span><span class="o">.</span><span class="n">O</span><span class="p">]))</span>
+<span class="k">print</span><span class="p">(</span><span class="s2">&quot;X wins&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">winning_states</span><span class="p">[</span><span class="n">Player</span><span class="o">.</span><span class="n">X</span><span class="p">]))</span>
+<span class="k">print</span><span class="p">(</span><span class="s2">&quot;Tie&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">winning_states</span><span class="p">[</span><span class="n">Player</span><span class="o">.</span><span class="n">NA</span><span class="p">]))</span>
+</pre></div>
+</div>
+<aside class="last notes">
+We catagorize the boards based on who won.</aside>
+</section>
+<section class="last" data-transition="slide">
+<h3>Results</h3>
+<div class="first highlight-bash"><div class="highlight"><pre><span></span>&gt; python tictactoe_v8_all_games.py
+O wins <span class="m">77904</span>
+X wins <span class="m">131184</span>
+Tie <span class="m">46080</span>
+</pre></div>
+</div>
+<aside class="last notes">
+And after churning away for a bit, get a result.</aside>
+</section>
+</section>
+<section>
+<section class="first">
+<h3>Immutability allows Local Thinking</h3>
+</section>
+<section class="last">
+<h3>Tools for Local Thinking</h3>
+<ul class="first last simple">
+<li>&#64;property</li>
+<li>tuple (and namedtuple)</li>
+<li>Commands</li>
+</ul>
+</section>
+</section>
+<section>
+<h2>Questions?</h2>
+</section>
+<section>
+<h2>references</h2>
+<p class="first">Talk: <a class="reference external" href="http://bit.ly/immutable-python-pres">bit.ly/immutable-python-pres</a></p>
+<p class="last">Source Code: <a class="reference external" href="http://bit.ly/immutable-python-src">bit.ly/immutable-python-src</a></p>
+</section>
+
+
+      </div>
+    </div>
+    
+<script src="_static/js/jquery.min.js"></script>
+<script src="_static/lib/js/head.min.js"></script>
+<script src="_static/js/reveal.js"></script>
+    <script>
+
+      // change DOM for reveal.js
+      $("div.section h1").remove();
+      var content = $("div.section").html();
+      $("div.section").remove();
+      $("div.slides").html(content);
+
+      Reveal.initialize({
+        width: 960,
+        height: 700,
+
+        margin: 0.02,
+
+        minScale: 0.2,
+        maxScale: 3.0,
+
+        controls: false,
+        progress: true,
+        history: true,
+        center: false,
+
+        keyboard : true,
+        overview: true,
+        touch: true,
+        loop: false,
+        rtl: false,
+        fragments: true,
+
+        autoSlide: 0,
+        mouseWheel: false,
+        rollingLinks: false,
+        previewLinks: false,
+
+        transitionSpeed: "default",
+        backgroundTransition: "default",
+
+        slideNumber: false,
+        embedded: false,
+        autoSlideStoppable: true,
+        hideAddressBar: true,
+
+        parallaxBackgroundImage: "",
+        parallaxBackgroundSize: "",
+
+        focusBodyOnPageVisiblityChange: true,
+
+        viewDistance: 3,
+
+        transition: Reveal.getQueryHash().transition || "default",
+
+        
+
+        dependencies: [
+           { src: '_static/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+           { src: '_static/plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+           { src: '_static/plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+           { src: '_static/plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+           { src: '_static/plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+           { src: '_static/plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
+        ]
+      });
+    </script>
+    
+  </body>
+</html>
