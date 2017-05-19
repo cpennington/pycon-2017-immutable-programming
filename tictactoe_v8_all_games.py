@@ -31,7 +31,7 @@ def replace(tpl, idx, value):
     return tpl[:idx] + (value, ) + tpl[idx+1:]
 
 
-class Board(namedtuple('_Board', ['board'])):
+class BoardState(namedtuple('_Board', ['board'])):
     @property
     def player(self):
         plays = 0
@@ -53,7 +53,7 @@ class Board(namedtuple('_Board', ['board'])):
 
     def do_move(self, x, y):
         if self.board[x][y] == Player.NA:
-            return Board(
+            return BoardState(
                 replace(self.board, x, replace(self.board[x], y, self.player))
             )
         else:
@@ -80,11 +80,11 @@ class Board(namedtuple('_Board', ['board'])):
 
         return None
 
-Board.__new__.__defaults__ = (((Player.NA,)*3,)*3, )
+BoardState.__new__.__defaults__ = (((Player.NA,)*3,)*3, )
 
 class TestTicTacToe(TestCase):
     def test_basic_play(self):
-        initial = Board()
+        initial = BoardState()
         all_moves = [(x, y) for x in range(3) for y in range(3)]
         for (x0, y0) in all_moves:
             with self.subTest(x0=x0, y0=y0):
@@ -108,74 +108,70 @@ ALL_MOVES = [
 ]
 
 # SEARCH-START
-def depth_first(board=None):
-    if board is None:
-        board = Board()
+def depth_first(state=None):
+    if state is None:
+        state = BoardState()
 
-    yield board
+    yield state
 
     for x, y in ALL_MOVES:
-        next_board = board.do_move(x, y)
-        if board != next_board:
-            yield from depth_first(next_board)
+        next_state = state.do_move(x, y)
+        if state != next_state:
+            yield from depth_first(next_state)
 # SEARCH-END
 
 # FILTER-START
-def depth_first_filter(filter_fn, board=None):
-    if board is None:
-        board = Board()
+def depth_first_filter(filter_fn, state=None):
+    if state is None:
+        state = BoardState()
 
-    yield board
+    yield state
 
-    next_boards = (
-        board.do_move(x, y) for x, y in ALL_MOVES
-    )
+    next_states = (state.do_move(x, y) for x, y in ALL_MOVES)
 
-    next_boards = (
-        next_board for next_board in next_boards
-        if board != next_board
-    )
+    next_states = (next_state for next_state in next_states
+                   if state != next_state)
 
-    next_boards = filter_fn(board, next_boards)
+    next_states = filter_fn(state, next_states)
 
-    for next_board in next_boards:
-        yield from depth_first_filter(filter_fn, next_board)
+    for next_state in next_states:
+        yield from depth_first_filter(filter_fn, next_state)
 # FILTER-END
 
-def _breadth_first(board=None):
-    if board is None:
-        board = Board()
+def _breadth_first(state=None):
+    if state is None:
+        state = BoardState()
 
-    yield [board]
+    yield [state]
 
-    next_boards = (
-        board.do_move(x, y)
+    next_states = (
+        state.do_move(x, y)
         for x in range(3)
         for y in range(3)
     )
 
-    next_boards = (
-        _breadth_first(next_board)
-        for next_board in next_boards
-        if next_board != board
+    next_states = (
+        _breadth_first(next_state)
+        for next_state in next_states
+        if next_state != state
     )
 
-    plies = zip_longest(*next_boards)
+    plies = zip_longest(*next_states)
 
     for plies in plies:
         yield sum(plies, [])
 
 
-def breadth_first(board=None):
-    for ply in _breadth_first(board):
+def breadth_first(state=None):
+    for ply in _breadth_first(state):
         yield from ply
 
 # FILTER-FN-START
-def filter_finished(board, next_boards):
-    if board.winner is not None:
+def filter_finished(state, next_states):
+    if state.winner is not None:
         return
     else:
-        yield from next_boards
+        yield from next_states
 # FILTER-FN-END
 
 def main():
@@ -184,18 +180,18 @@ def main():
     # print(idx)
 
     # MAIN-START
-    winning_boards = {
+    winning_states = {
         Player.X: [],
         Player.O: [],
         Player.NA: [],
     }
-    for board in depth_first_filter(filter_finished):
-        if board.winner is not None:
-            winning_boards[board.winner].append(board)
+    for state in depth_first_filter(filter_finished):
+        if state.winner is not None:
+            winning_states[state.winner].append(state)
 
-    print("O wins", len(winning_boards[Player.O]))
-    print("X wins", len(winning_boards[Player.X]))
-    print("Tie", len(winning_boards[Player.NA]))
+    print("O wins", len(winning_states[Player.O]))
+    print("X wins", len(winning_states[Player.X]))
+    print("Tie", len(winning_states[Player.NA]))
     # MAIN-END
 
 if __name__ == "__main__":

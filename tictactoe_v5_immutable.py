@@ -15,7 +15,7 @@ def replace(tpl, idx, value):
     return tpl[:idx] + (value, ) + tpl[idx+1:]
 # REPLACE-END
 
-class Board(namedtuple('_Board', ['board'])):
+class BoardState(namedtuple('_Board', ['board'])):
     @property
     def player(self):
         plays = Counter(sum(self.board, ()))
@@ -35,7 +35,7 @@ class Board(namedtuple('_Board', ['board'])):
         if self.board[x][y] == Player.NA:
             new_row = replace(self.board[x], y, self.player)
             new_board = replace(self.board, x, new_row)
-            return Board(new_board)
+            return BoardState(new_board)
         else:
             return self
     # ACTION-END
@@ -66,18 +66,26 @@ class Board(namedtuple('_Board', ['board'])):
                     diff.add((x, y, self.board[x][y]))
         return diff
 
-Board.__new__.__defaults__ = (((Player.NA,)*3,)*3,)
+BoardState.__new__.__defaults__ = (((Player.NA,)*3,)*3,)
 
 class TestTicTacToe(TestCase):
     # TEST-START
     def test_moves_made(self):
-        before = Board()
+        # Store the state of the board before a move
+        before = BoardState()
+
+
+
+
+        # Store the state of the board after the move
         after = before.do_move(0, 0)
+
+        # Compare the state before and after
         self.assertEqual(after - before, {(0, 0, Player.X)})
         self.assertEqual(before - after, {(0, 0, Player.NA)})
     # TEST-END
     def test_basic_play(self):
-        initial = Board()
+        initial = BoardState()
         all_moves = [(x, y) for x in range(3) for y in range(3)]
 
         for (x0, y0) in all_moves:
@@ -102,19 +110,19 @@ class TestTicTacToe(TestCase):
 
 # LOOP-START
 def main():
-    board = Board()
-    while not board.is_finished:
-        print(board)
-        move = input(f"Player {board.player.value} (x y)? ")
+    state = BoardState()
+    while not state.is_finished:
+        print(state)
+        move = input(f"Player {state.player.value} (x y)? ")
         x, y = move.split()
         x = int(x)
         y = int(y)
 
-        board = board.do_move(x, y)
+        state = state.do_move(x, y)
 # LOOP-END
 
     print("Game Over!")
-    print(board)
+    print(state)
 
 
 if __name__ == "__main__":

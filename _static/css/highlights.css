@@ -1,8 +1,33 @@
-.highlight > pre {
+.highlight pre {
     padding: 10px;
     width: 100%;
     margin: 0px;
     background-color: #f8f8f8;
+}
+
+.mutable .highlight pre {
+    background-color: #fff2f2;
+}
+
+.mutable .highlight pre::before {
+    content: "🔓";
+    float: right;
+    font-size: 200%;
+}
+
+.immutable .highlight pre {
+    background-color: #e3ffe2;
+}
+
+.immutable .highlight pre::before {
+    content: "🔒";
+    float: right;
+    font-size: 200%;
+}
+
+.saaad {
+    padding-top: 40px !important;
+    color: #c10101 !important;
 }
 
 .highlight .hll { background-color: #fff084 }

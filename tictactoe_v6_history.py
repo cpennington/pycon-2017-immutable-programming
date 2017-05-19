@@ -14,7 +14,7 @@ def replace(tpl, idx, value):
     return tpl[:idx] + (value, ) + tpl[idx+1:]
 
 
-class Board(namedtuple('_Board', ['board'])):
+class BoardState(namedtuple('_Board', ['board'])):
     @property
     def player(self):
         plays = Counter(sum(self.board, ()))
@@ -31,7 +31,7 @@ class Board(namedtuple('_Board', ['board'])):
 
     def do_move(self, x, y):
         if self.board[x][y] == Player.NA:
-            return Board(
+            return BoardState(
                 replace(self.board, x, replace(self.board[x], y, self.player))
             )
         else:
@@ -55,11 +55,11 @@ class Board(namedtuple('_Board', ['board'])):
 
         return False
 
-Board.__new__.__defaults__ = (((Player.NA,)*3,)*3,)
+BoardState.__new__.__defaults__ = (((Player.NA,)*3,)*3,)
 
 class TestTicTacToe(TestCase):
     def test_basic_play(self):
-        initial = Board()
+        initial = BoardState()
         all_moves = [(x, y) for x in range(3) for y in range(3)]
         for (x0, y0) in all_moves:
             with self.subTest(x0=x0, y0=y0):
@@ -76,28 +76,29 @@ class TestTicTacToe(TestCase):
                             self.assertNotEqual(initial.player, after_first.player)
                             self.assertNotEqual(initial.board, after_first.board)
 
+# LOOP-START
 def main():
-    boards = [Board()]
-    while not boards[-1].is_finished:
-        print(boards[-1])
-        move = input(f"Player {boards[-1].player.value} move (x y, u to undo, gN to revert to move N)? ")
+    states = [BoardState()]
+    while not states[-1].is_finished:
+        print(states[-1])
+        move = input(f"Player {states[-1].player.value}: "
+                      "x y to move, u to undo, "
+                      "gN to revert to move N)? ")
         if move == 'u':
-            boards.pop()
+            states.pop()
         elif move.startswith('g'):
-            boards = boards[:int(move.replace('g',''))+1]
+            states = states[:int(move.replace('g','')) + 1]
         else:
             try:
                 x, y = move.split()
-                x = int(x)
-                y = int(y)
-
-                boards.append(boards[-1].do_move(x, y))
+                states.append(states[-1].do_move(int(x), int(y)))
             except:
                 print("Invalid move")
+# LOOP-END
 
     print("Game Over!")
-    for board in boards:
-        print(board)
+    for state in states:
+        print(state)
 
 
 if __name__ == "__main__":

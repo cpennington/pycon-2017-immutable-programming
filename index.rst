@@ -1,26 +1,17 @@
 .. title:: Immutable Programming: Writing Functional Python
 
-.. revealjs:: Immutable Python
+.. revealjs:: Immutable Programming
     :subtitle: Writing Functional Python
 
-.. revealjs:: Who Am I?
+    Cale Pennington
 
-    .. revealjs::
+    @vengefulpickle
 
-        Cale Pennington
+    github.com/cpennington
 
-        edx.org
+.. revealjs::
 
-        .. rv_note::
-
-            Hi! I'm Cale Pennington, and I work at edX, which is a non-profit online MOOC provider.
-            My day-job is mostly Python, but I dabble with Haskell as well, and will be sharing some
-            techniques that are common in Haskell, and other functional progamming languages,
-            that are useful in Python too!
-
-.. revealjs:: Background
-
-    .. revealjs::
+    .. revealjs:: Compare
 
         Python
             Mutable by default (mostly)
@@ -34,30 +25,22 @@
             (and common) to modify the values of variables (especially on objects). In Haskell, once
             you assign a value to a name, that value is fixed forever.
 
-    .. revealjs::
+    .. revealjs:: Immutability allows Local Thinking
+        :title-heading: h3
 
-        What can we learn?
+    .. revealjs:: Tools for Local Thinking
+        :title-heading: h3
+
+        * @property
+        * tuple (and namedtuple)
+        * Commands
+        * Enum
 
         .. rv_note::
 
             In the rest of this talk, I'm going to take what's a fairly standard Python design for
             a game of Tic-Tac-Toe, and then explore what additional options moving to an Immutable
             design presents.
-
-    .. revealjs::
-
-        * Consider immutability
-
-          * @properties, namedtuple
-
-        * Limit your inputs
-
-          * Commands, Enum
-
-        * Separate logic and I/O
-
-        * Generators and filter functions to manage large search spaces
-
 
 .. revealjs:: The Setup
 
@@ -69,39 +52,24 @@
             :language: python
             :start-after: LOOP-START
             :end-before: LOOP-END
+            :class: mutable
+            :emphasize-lines: 9
+
+        .. literalinclude:: tictactoe_v4_properties.py
+            :language: python
+            :class: mutable
+            :start-after: INTRO-START
+            :end-before: INTRO-END
+            :emphasize-lines: 3, 7
 
         .. rv_note::
 
             This is a fairly standard game loop that gets player input, and then calls a method
             on the game to update its state.
 
-    .. revealjs:: Storage
-        :title-heading: h3
-        :data-transition: slide
-
-        .. literalinclude:: tictactoe_v4_properties.py
-            :language: python
-            :start-after: STORAGE-START
-            :end-before: STORAGE-END
-
-        .. rv_note::
-
-            The board is stored as nested lists, so that we can easily index particular squares.
-
-    .. revealjs:: Action
-        :title-heading: h3
-        :data-transition: slide
-
-        .. literalinclude:: tictactoe_v4_properties.py
-            :language: python
-            :start-after: ACTION-START
-            :end-before: ACTION-END
-            :dedent: 4
-
-        .. rv_note::
-
             do_move modifies the state of the board, as long as there isn't already a piece
             in that position.
+
 
     .. revealjs:: Property
         :title-heading: h3
@@ -112,6 +80,7 @@
             :start-after: PROPERTY-START
             :end-before: PROPERTY-END
             :dedent: 4
+            :class: mutable
 
         .. rv_note::
 
@@ -129,6 +98,7 @@
             :language: python
             :start-after: ENUM-START
             :end-before: ENUM-END
+            :class: mutable
 
         .. rv_note::
 
@@ -138,22 +108,19 @@
 
     .. revealjs:: Tests
         :title-heading: h3
-        :data-transition: slide
+        :data-transition: slide-in fade-out
 
         .. literalinclude:: tictactoe_v4_properties.py
             :language: python
-            :start-after: TEST-START
-            :end-before: TEST-END
+            :start-after: FAILED-TEST-START
+            :end-before: FAILED-TEST-END
             :dedent: 4
+            :class: mutable
 
-        .. rv_note::
-
-            We can write some unittests, and validate that the turn changes when moves are
-            played and that the move is actually recorded correctly.
 
     .. revealjs:: Tests
         :title-heading: h3
-        :data-transition: slide
+        :data-transition: fade-in slide-out
 
         .. literalinclude:: tictactoe_v4_properties.py
             :language: python
@@ -161,12 +128,14 @@
             :end-before: FAILED-TEST-END
             :dedent: 4
             :emphasize-lines: 4
+            :class: mutable
 
         .. code-block:: python
+            :class: mutable
 
-            ======================================================================
+            ================================================================
             FAIL: test_game_end (tictactoe_v4_properties.TestTicTacToe)
-            ----------------------------------------------------------------------
+            ----------------------------------------------------------------
             Traceback (most recent call last):
             File ".../tictactoe_v4_properties.py", line 93, in test_game_end
                 self.assertFalse(self.game.is_finished)
@@ -178,13 +147,14 @@
 
     .. revealjs:: Tests
         :title-heading: h3
-        :data-transition: slide
+        :data-transition: slide-in fade-out
 
         .. literalinclude:: tictactoe_v4_properties.py
             :language: python
             :start-after: DEEP-TEST-START
             :end-before: DEEP-TEST-END
             :dedent: 4
+            :class: mutable
 
         .. rv_note::
 
@@ -194,13 +164,39 @@
 
     .. revealjs:: Tests
         :title-heading: h3
+        :data-transition: fade
+
+        .. literalinclude:: tictactoe_v4_properties.py
+            :language: python
+            :start-after: DEEP-TEST-START
+            :end-before: DEEP-TEST-END
+            :dedent: 4
+            :class: mutable
+            :emphasize-lines: 3
+
+    .. revealjs:: Tests
+        :title-heading: h3
+        :data-transition: fade-in slide-out
+
+        .. literalinclude:: tictactoe_v4_properties.py
+            :language: python
+            :start-after: DEEP-TEST-START
+            :end-before: DEEP-TEST-END
+            :dedent: 4
+            :class: mutable
+            :emphasize-lines: 9
+
+
+    .. revealjs:: Tests
+        :title-heading: h3
         :data-transition: slide
 
         .. code-block:: python
+            :class: mutable
 
-            ======================================================================
+            =============================================================
             FAIL: test_moves_made (tictactoe_v4_properties.TestTicTacToe)
-            ----------------------------------------------------------------------
+            -------------------------------------------------------------
             Traceback (most recent call last):
             File ".../tictactoe_v4_properties.py", line 116,
             in test_moves_made
@@ -217,18 +213,43 @@
 
     .. revealjs:: Tests
         :title-heading: h3
-        :data-transition: slide
+        :data-transition: slide-in fade-out
 
         .. literalinclude:: tictactoe_v4_properties.py
             :language: python
-            :start-after: STORAGE-START
-            :end-before: STORAGE-END
+            :lines: 16-18
+            :class: mutable
 
         .. literalinclude:: tictactoe_v4_properties.py
-            :class: fragment
+            :class: fragment mutable
             :language: python
             :start-after: FIXED-STORAGE-START
             :end-before: FIXED-STORAGE-END
+
+        .. revealjs::
+            :class: fragment saaad
+
+            Spooky action at a distance
+
+    .. revealjs:: Tests
+        :title-heading: h3
+        :data-transition: fade-in slide-out
+
+        .. literalinclude:: tictactoe_v4_properties.py
+            :language: python
+            :lines: 16-18
+            :class: mutable
+
+        .. literalinclude:: tictactoe_v4_properties.py
+            :class: mutable
+            :language: python
+            :start-after: FIXED-STORAGE-START
+            :end-before: FIXED-STORAGE-END
+
+        .. revealjs::
+            :class: saaad
+
+            Saaad... 🙁
 
         .. rv_note::
 
@@ -241,6 +262,8 @@
             option would be to make it so that having multiple references to the
             same row object wouldn't be an issue, by making the rows immutable.
 
+
+
 .. revealjs:: Immutable
 
     .. revealjs:: Storage
@@ -248,8 +271,9 @@
         :data-transition: slide
 
         .. code-block:: python
+            :class: immutable
 
-            class TicTacToe():
+            class Board():
                 def __init__(self):
                      self.board = ((Player.NA, )*3, )*3
 
@@ -271,6 +295,7 @@
             :start-after: DEEP-TEST-START
             :end-before: DEEP-TEST-END
             :dedent: 4
+            :class: mutable
 
     .. revealjs:: Tests
         :title-heading: h3
@@ -281,6 +306,8 @@
             :start-after: TEST-START
             :end-before: TEST-END
             :dedent: 4
+            :class: immutable
+            :emphasize-lines: 3, 9
 
         .. rv_note::
 
@@ -294,21 +321,28 @@
         :data-transition: slide-in fade-out
 
         .. code-block:: python
+            :class: immutable
 
-            class Board(namedtuple('_Board', ['board'])):
+            class Board():
+                def __init__(self):
+                     self.board = ((Player.NA, )*3, )*3
+
+    .. revealjs:: Storage
+        :title-heading: h3
+        :data-transition: fade-in slide-out
+
+        .. code-block:: python
+            :class: immutable
+            :emphasize-lines: 1
+
+            class BoardState(namedtuple('_BoardState', ['board'])):
                 ...
 
-            Board.__new__.__defaults__ = (((Player.NA, )*3, )*3, )
-
-        .. rv_note::
-
-            We made the test above possible by making the Board immutable.
-            But before we dig into this code any more, a quick aside on namedtuples.
-
+            BoardState.__new__.__defaults__ = (((Player.NA, )*3, )*3, )
 
     .. revealjs:: namedtuple
         :title-heading: h3
-        :data-transition: fade
+        :data-transition: slide
 
         .. code-block:: python
 
@@ -333,14 +367,16 @@
 
     .. revealjs:: Storage
         :title-heading: h3
-        :data-transition: fade-in slide-out
+        :data-transition: slide
 
         .. code-block:: python
+            :class: immutable
+            :emphasize-lines: 4
 
-            class Board(namedtuple('_Board', ['board'])):
+            class BoardState(namedtuple('_BoardState', ['board'])):
                 ...
 
-            Board.__new__.__defaults__ = (((Player.NA, )*3, )*3, )
+            BoardState.__new__.__defaults__ = (((Player.NA, )*3, )*3, )
 
         .. rv_note::
 
@@ -363,9 +399,9 @@
 
         .. literalinclude:: tictactoe_v4_properties.py
             :language: python
-            :start-after: ACTION-START
-            :end-before: ACTION-END
+            :lines: 20-22
             :dedent: 4
+            :class: mutable
 
         .. rv_note::
 
@@ -380,11 +416,13 @@
             :start-after: ACTION-START
             :end-before: ACTION-END
             :dedent: 4
+            :class: immutable
 
         .. literalinclude:: tictactoe_v5_immutable.py
             :language: python
             :start-after: REPLACE-START
             :end-before: REPLACE-END
+            :class: immutable
 
         .. rv_note ::
 
@@ -394,90 +432,33 @@
             there's no need to make a copy when return an new identical object.
 
 
-.. revealjs:: History
-
-    .. revealjs:: Replay
-        :title-heading: h3
-        :data-transition: slide-in fade-out
-
-        .. literalinclude:: tictactoe_v4_properties.py
-            :language: python
-            :start-after: LOOP-START
-            :end-before: LOOP-END
-
-        .. rv_note::
-
-            To refresh your memory, here's what the main game loop looked like
-            with a mutable game.
-
-    .. revealjs:: Replay
-        :title-heading: h3
-        :data-transition: fade-in slide-out
-
-        .. code-block:: python
-            :emphasize-lines: 2, 8, 11-13
-
-            def main():
-                boards = [Board()]
-                while not boards[-1].is_finished():
-                    print(boards[-1])
-
-                    move = input(f"Player {game.player.value} move (x y)")
-                    x, y = move.split()
-
-                    boards.append(boards[-1].do_move(int(x), int(y)))
-
-                print("Game Over!")
-                for board in boards:
-                    print(board)
-
-        .. rv_note::
-
-            Now that we've switch to an immutable style, we get some improvements to other aspects of
-            the game as well. We can easily add tracking of the history of the game, by storing
-            each of the board states that have occurred. That lets us display a replay of the game
-            at the end, or ...
-
-    .. revealjs:: Undo
-        :title-heading: h3
-        :data-transition: slide
-
-        .. code-block:: python
-            :emphasize-lines: 7, 9
-
-            def main():
-                boards = [Board()]
-                while not boards[-1].is_finished():
-                    print(boards[-1])
-
-                    ...
-
-                    if move == 'u':
-                        boards.pop()
-                    elif move.startswith('g'):
-                        boards = boards[:int(move.replace('g',''))+1]
-                    else:
-                        ...
-
-        .. rv_note::
-
-            implement a couple of different kinds of undo commands, where we either undo the most recent move,
-            or go back to a previous board state and pick up the game from there.
-
-            This main function highlights another opportunity to learn from Haskell. As written,
-            the logic of figuring out what the user is trying to do is mixed in with actually
-            doing what they are asking for.
-
 .. revealjs:: Commands
 
     .. revealjs:: Player
         :title-heading: h3
-        :data-transition: slide
+        :data-transition: slide-in fade-out
+
+        .. literalinclude:: tictactoe_v6_history.py
+            :language: python
+            :start-after: LOOP-START
+            :end-before: LOOP-END
+            :class: immutable
+
+        .. rv_note::
+
+            Instead, we can separate the logic into a function that presents the board
+            to the player, and returns their action ...
+
+    .. revealjs:: Player
+        :title-heading: h3
+        :data-transition: fade-in slide-out
 
         .. literalinclude:: tictactoe_v7_command.py
             :language: python
             :start-after: PLAYER-START
             :end-before: PLAYER-END
+            :class: immutable
+            :emphasize-lines: 3, 9, 11, 15
 
         .. rv_note::
 
@@ -486,12 +467,36 @@
 
     .. revealjs::
         :title-heading: h3
-        :data-transition: slide
+        :data-transition: slide-in fade-out
 
         .. literalinclude:: tictactoe_v7_command.py
             :language: python
             :start-after: COMMAND-START
             :end-before: COMMAND-END
+            :class: immutable
+            :emphasize-lines: 1, 5, 14
+
+    .. revealjs::
+        :title-heading: h3
+        :data-transition: fade
+
+        .. literalinclude:: tictactoe_v7_command.py
+            :language: python
+            :start-after: COMMAND-START
+            :end-before: COMMAND-END
+            :class: immutable
+            :emphasize-lines: 2, 6, 15
+
+    .. revealjs::
+        :title-heading: h3
+        :data-transition: fade-in slide-out
+
+        .. literalinclude:: tictactoe_v7_command.py
+            :language: python
+            :start-after: COMMAND-START
+            :end-before: COMMAND-END
+            :class: immutable
+            :emphasize-lines: 3, 8, 12, 16
 
         .. rv_note::
 
@@ -506,6 +511,7 @@
             :language: python
             :start-after: LOOP-START
             :end-before: LOOP-END
+            :class: immutable
 
         .. rv_note::
 
@@ -520,6 +526,7 @@
             :language: python
             :start-after: RANDOM-START
             :end-before: RANDOM-END
+            :class: immutable
 
         .. rv_note::
 
@@ -535,6 +542,7 @@
             :start-after: TEST-START
             :end-before: TEST-END
             :dedent: 4
+            :class: immutable
 
         .. rv_note::
 
@@ -552,6 +560,12 @@
             :language: python
             :start-after: DEPTH-FIRST-START
             :end-before: DEPTH-FIRST-END
+            :class: mutable
+
+        .. revealjs::
+            :class: saaad fragment
+
+            Saaad... 🙁
 
         .. rv_note::
 
@@ -571,6 +585,22 @@
             :language: python
             :start-after: DEPTH-COPY-START
             :end-before: DEPTH-COPY-END
+            :class: mutable
+
+    .. revealjs:: Search
+        :title-heading: h3
+        :data-transition: fade-in fade-out
+
+        .. literalinclude:: tictactoe_v4_properties.py
+            :language: python
+            :start-after: DEPTH-COPY-START
+            :end-before: DEPTH-COPY-END
+            :class: mutable
+
+        .. revealjs::
+            :class: saaad
+
+            Saaad... 🙁
 
         .. rv_note::
 
@@ -585,6 +615,7 @@
             :language: python
             :start-after: SEARCH-START
             :end-before: SEARCH-END
+            :class: immutable
 
         .. rv_note::
 
@@ -598,6 +629,8 @@
             :language: python
             :start-after: FILTER-START
             :end-before: FILTER-END
+            :class: immutable
+            :emphasize-lines: 1, 12
 
         .. rv_note::
 
@@ -618,6 +651,7 @@
             :language: python
             :start-after: FILTER-FN-START
             :end-before: FILTER-FN-END
+            :class: immutable
 
         .. rv_note::
 
@@ -632,6 +666,7 @@
             :start-after: MAIN-START
             :end-before: MAIN-END
             :dedent: 4
+            :class: immutable
 
         .. rv_note::
 
@@ -654,17 +689,16 @@
 
 .. revealjs::
 
-    * Consider immutability
+    .. revealjs:: Immutability allows Local Thinking
+        :title-heading: h3
 
-      * @properties, namedtuple
+    .. revealjs:: Tools for Local Thinking
+        :title-heading: h3
 
-    * Limit your inputs
-
-      * Commands, Enum
-
-    * Separate logic and I/O
-
-    * Generators and filter functions to manage large search spaces
+        * @property
+        * tuple (and namedtuple)
+        * Commands
+        * Enum
 
 .. revealjs:: Questions?
 

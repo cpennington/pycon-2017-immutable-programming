@@ -12,11 +12,15 @@ class Player(Enum):
 # ENUM-END
 
 
-# STORAGE-START
+# INTRO-START
 class Board():
     def __init__(self):
-        self.board = [[Player.NA]*3]*3
-# STORAGE-END
+        self.board = [[Player.NA]*3]*3]
+
+    def do_move(self, x, y):
+        if self.board[x][y] == Player.NA:
+            self.board[x][y] = self.player
+# INTRO-END
 
     # PROPERTY-START
     @property
@@ -34,11 +38,6 @@ class Board():
             for row in self.board
         )
 
-    # ACTION-START
-    def do_move(self, x, y):
-        if self.board[x][y] == Player.NA:
-            self.board[x][y] = self.player
-    # ACTION-END
 
     @property
     def is_finished(self):
@@ -70,13 +69,13 @@ class TestTicTacToe(TestCase):
 
     # TEST-START
     def test_basic_play(self):
+        # Check the current player
         self.assertEqual(self.board.player, Player.X)
         self.board.do_move(0, 0)
+        # Check that the move worked
         self.assertEqual(self.board.board[0][0], Player.X)
+        # Check that the player changed
         self.assertEqual(self.board.player, Player.O)
-        self.board.do_move(0, 1)
-        self.assertEqual(self.board.board[0][1], Player.O)
-        self.assertEqual(self.board.player, Player.X)
     # TEST-END
 
     def test_same_move(self):
@@ -103,17 +102,16 @@ class TestTicTacToe(TestCase):
 
     # DEEP-TEST-START
     def test_moves_made(self):
-        before = {
-            (x, y, self.board.board[x][y])
-            for x in range(3)
-            for y in range(3)
-        }
+        # Store the state of the board before a move
+        before = {(x, y, self.board.board[x][y]) for (x, y) in ALL_MOVES}
+
+        # Make a single move
         self.board.do_move(0, 0)
-        after = {
-            (x, y, self.board.board[x][y])
-            for x in range(3)
-            for y in range(3)
-        }
+
+        # Store the state of the board after the move
+        after = {(x, y, self.board.board[x][y]) for (x, y) in ALL_MOVES}
+
+        # Compare the state before and after
         self.assertEqual(after - before, {(0, 0, Player.X)})
         self.assertEqual(before - after, {(0, 0, Player.NA)})
     # DEEP-TEST-END
@@ -168,10 +166,10 @@ def main():
         x, y = move.split()
 
         board.do_move(int(x), int(y))
+# LOOP-END
 
     print("Game Over!")
     print(board)
-# LOOP-END
 
 
 if __name__ == "__main__":

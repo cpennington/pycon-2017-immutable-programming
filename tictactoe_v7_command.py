@@ -13,21 +13,21 @@ class Player(Enum):
 
 # COMMAND-START
 class Undo(namedtuple('_Undo', ['count'])):
-    def apply(self, boards):
-        return boards[:-self.count]
-
+    def apply(self, board_states):
+        return board_states[:-self.count]
 
 class Move(namedtuple('_Move', ['x', 'y'])):
-    def apply(self, boards):
-        if boards[-1].board[self.x][self.y] == Player.NA:
-            return boards + (boards[-1].do_move(self.x, self.y), )
+    def apply(self, board_states):
+        if board_states[-1].board[self.x][self.y] == Player.NA:
+            return board_states + (
+                board_states[-1].do_move(self.x, self.y),
+            )
         else:
-            return boards
-
+            return board_states
 
 class RevertTo(namedtuple('_RevertTo', ['idx'])):
-    def apply(self, boards):
-        return boards[:self.idx]
+    def apply(self, board_states):
+        return board_states[:self.idx]
 # COMMAND-END
 
 
@@ -35,7 +35,7 @@ def replace(tpl, idx, value):
     return tpl[:idx] + (value, ) + tpl[idx+1:]
 
 
-class Board(namedtuple('_Board', ['board'])):
+class BoardState(namedtuple('_Board', ['board'])):
 
     @property
     def player(self):
@@ -53,7 +53,7 @@ class Board(namedtuple('_Board', ['board'])):
 
     def do_move(self, x, y):
         if self.board[x][y] == Player.NA:
-            return Board(
+            return BoardState(
                 replace(self.board, x, replace(self.board[x], y, self.player))
             )
         else:
@@ -80,11 +80,11 @@ class Board(namedtuple('_Board', ['board'])):
 
         return False
 
-Board.__new__.__defaults__ = (((Player.NA,)*3,)*3,)
+BoardState.__new__.__defaults__ = (((Player.NA,)*3,)*3,)
 
 class TestTicTacToe(TestCase):
     def test_basic_play(self):
-        initial = Board()
+        initial = BoardState()
         all_moves = [(x, y) for x in range(3) for y in range(3)]
         for (x0, y0) in all_moves:
             with self.subTest(x0=x0, y0=y0):
@@ -103,11 +103,13 @@ class TestTicTacToe(TestCase):
 
 
 # PLAYER-START
-def move_human(board):
+def move_human(state):
+
     while True:
-        print(board)
-        move = input(f"Player {board.player.value} move (x y, u to "
-                      "undo, gN to revert to move N)? ")
+        print(state)
+        move = input(f"Player {state.player.value}: "
+                      "x y to move, u to undo, "
+                      "gN to revert to move N)? ")
         if move.startswith('u'):
             return Undo(1)
         elif move.startswith('g'):
@@ -115,15 +117,13 @@ def move_human(board):
         else:
             try:
                 x, y = move.split()
-                x = int(x)
-                y = int(y)
-                return Move(x, y)
+                return Move(int(x), int(y))
             except:
                 print("Invalid move")
 # PLAYER-END
 
 # RANDOM-START
-def move_random(board):
+def move_random(state):
     x = randrange(3)
     y = randrange(3)
 
@@ -134,28 +134,28 @@ def move_random(board):
 class TestCommands(TestCase):
 
     def setUp(self):
-        self.boards = (
-            Board(),
-            Board().do_move(1, 1),
-            Board().do_move(1, 1).do_move(0, 0),
-            Board().do_move(1, 1).do_move(0, 0).do_move(0, 2),
+        self.states = (
+            BoardState(),
+            BoardState().do_move(1, 1),
+            BoardState().do_move(1, 1).do_move(0, 0),
+            BoardState().do_move(1, 1).do_move(0, 0).do_move(0, 2),
         )
 
     def test_undo(self):
         self.assertEqual(
-            Undo(1).apply(self.boards),
-            self.boards[:-1]
+            Undo(1).apply(self.states),
+            self.states[:-1]
         )
 
     # TEST-START
     def test_revert(self):
         self.assertEqual(
-            RevertTo(2).apply(self.boards),
-            self.boards[:2]
+            RevertTo(2).apply(self.states),
+            self.states[:2]
         )
 
     def test_inverse(self):
-        start = (Board(), )
+        start = (BoardState(), )
         for x in range(3):
             for y in range(3):
                 self.assertEqual(
@@ -166,8 +166,8 @@ class TestCommands(TestCase):
 
     def test_move(self):
         self.assertEqual(
-            Move(2, 2).apply(self.boards),
-            self.boards + (self.boards[-1].do_move(2, 2), )
+            Move(2, 2).apply(self.states),
+            self.states + (self.states[-1].do_move(2, 2), )
         )
 
 
@@ -182,15 +182,15 @@ def main():
         Player.O: player_types[y_choice],
     }
 
-    boards = (Board(), )
-    while not boards[-1].is_finished:
-        move = players[boards[-1].player](boards[-1])
-        boards = move.apply(boards)
+    states = (BoardState(), )
+    while not states[-1].is_finished:
+        move = players[states[-1].player](states[-1])
+        states = move.apply(states)
     # LOOP-END
 
     print("Game Over!")
-    for board in boards:
-        print(board)
+    for state in states:
+        print(state)
 
 
 if __name__ == "__main__":
